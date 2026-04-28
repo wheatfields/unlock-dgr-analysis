@@ -1,0 +1,38 @@
+# Raw downloads — re-fetchable from source, kept out of Git
+data/raw/*
+!data/raw/.gitkeep
+
+# Processed and analytical outputs — re-buildable from raw, kept out of Git
+# (synced to SharePoint for volunteers; do not commit binaries)
+data/processed/*
+!data/processed/.gitkeep
+data/analytical/*
+!data/analytical/.gitkeep
+
+# targets cache
+_targets/
+!_targets.R
+
+# R session files
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# renv library (lockfile is committed, library is not)
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/python/
+renv/staging/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Credentials — never commit
+.env
+*.secret

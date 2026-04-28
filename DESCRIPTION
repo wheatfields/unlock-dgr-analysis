@@ -1,0 +1,24 @@
+Package: unlockdgr
+Title: Unlock DGR Analysis Pipeline
+Version: 0.1.0
+Description: Ingests public charity data and produces analytical Parquet
+    outputs supporting Justice Connect's Unlock DGR campaign.
+Encoding: UTF-8
+Imports:
+    targets,
+    tarchetypes,
+    arrow,
+    duckdb,
+    dplyr,
+    readr,
+    janitor,
+    stringr,
+    lubridate,
+    httr2,
+    fs,
+    cli,
+    here
+Suggests:
+    renv,
+    rmarkdown,
+    knitr

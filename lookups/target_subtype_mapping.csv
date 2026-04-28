@@ -1,0 +1,9 @@
+acnc_subtype,activity_keyword,target_category,confidence,reviewer,review_date,notes
+"Advancing social or public welfare","neighbourhood house","neighbourhood_houses","high","","","Plain match on subtype + activity keyword."
+"Advancing social or public welfare","community centre","neighbourhood_houses","medium","","","Some community centres operate as neighbourhood houses; manual check required."
+"Advancing health","injury prevention","injury_prevention","high","","",""
+"Advancing health","road safety","injury_prevention","medium","","","Includes road trauma support and prevention."
+"Advancing the security or safety of Australia or the Australian public","disaster preparedness","disaster_preparedness","high","","",""
+"Advancing the security or safety of Australia or the Australian public","emergency response","disaster_preparedness","medium","","","Distinguish preparedness vs response carefully — only preparedness is in scope."
+"Promoting or protecting human rights","human rights","human_rights_promotion","high","","",""
+"Promoting or protecting human rights","civil liberties","human_rights_promotion","medium","","",""
