@@ -1,91 +1,117 @@
 #' Build analytical (joined, model-ready) datasets.
 #'
-#' Outputs land in data/analytical/ as Parquet. These are the files that get
-#' synced to SharePoint for volunteers to query via DuckDB.
+#' Outputs land in data/analytical/ as both Parquet and CSV. Parquet is for
+#' volunteers querying via DuckDB; CSV is for Excel and other tools.
 
-#' charity_master: one row per charity, with DGR status and target subtype flags.
+# ---- charity_master ---------------------------------------------------------
+
+#' One row per charity with DGR status and target category flags.
 build_charity_master <- function(register_path, dgr_path, mapping_path,
                                  analytical_dir) {
-
   register <- arrow::read_parquet(register_path)
   dgr      <- arrow::read_parquet(dgr_path)
   mapping  <- readr::read_csv(mapping_path, show_col_types = FALSE)
 
-  # Currently-endorsed DGRs only (most recent endorsement per ABN)
   dgr_current <- dgr |>
-    dplyr::filter(is_currently_endorsed) |>
-    dplyr::group_by(abn) |>
-    dplyr::summarise(
-      has_dgr = TRUE,
-      dgr_item_numbers = paste(unique(dgr_item_number), collapse = "|"),
-      .groups = "drop"
-    )
+    dplyr::filter(has_dgr) |>
+    dplyr::select(abn, has_dgr, dgr_endorsed_from)
 
   master <- register |>
     dplyr::left_join(dgr_current, by = "abn") |>
     dplyr::mutate(has_dgr = !is.na(has_dgr) & has_dgr)
 
-  # Apply target subtype mapping. The mapping file declares which ACNC
-  # subtype/activity combinations correspond to each campaign target category
-  # (neighbourhood houses, injury prevention, disaster preparedness, human
-  # rights promotion). Joins are intentionally loose to support manual review.
   master <- attach_target_subtype(master, mapping)
 
   out <- file.path(analytical_dir, "charity_master.parquet")
-  write_parquet_safely(master, out)
+  write_outputs(master, out)
 }
 
-#' Loose-join helper: flag charities matching the manual subtype mapping.
+#' Flag charities matching the campaign's four target categories.
+#'
+#' Matching strategy:
+#'   1. The relevant ACNC boolean purpose column must equal "Y".
+#'   2. The charity's legal name must contain the activity keyword (case-insensitive).
+#'
+#' The ACNC register has boolean purpose columns but no free-text activity field,
+#' so name-based keyword matching is the best available proxy. Rows in the
+#' mapping CSV are processed in order; the first match wins (higher-confidence
+#' rows should appear first).
 attach_target_subtype <- function(master, mapping) {
-  # The mapping has columns: acnc_subtype, activity_keyword, target_category, confidence.
-  # Implementation of the join depends on which ACNC fields the team decides
-  # to key off. Placeholder: a simple join on `charity_subtype` if present.
-  if ("charity_subtype" %in% names(master) && "acnc_subtype" %in% names(mapping)) {
-    master <- master |>
-      dplyr::left_join(
-        mapping |> dplyr::select(charity_subtype = acnc_subtype, target_category, confidence),
-        by = "charity_subtype"
-      )
-  } else {
-    master$target_category <- NA_character_
-    master$confidence      <- NA_character_
+  # Maps human-readable acnc_subtype labels in the CSV to the actual column
+  # names produced by janitor::clean_names() on the ACNC register.
+  purpose_col_map <- c(
+    "advancing social or public welfare" =
+      "advancing_social_or_public_welfare",
+    "advancing health" =
+      "advancing_health",
+    "advancing the security or safety of australia or the australian public" =
+      "advancing_security_or_safety_of_australia_or_australian_public",
+    "promoting or protecting human rights" =
+      "promoting_or_protecting_human_rights"
+  )
+
+  master$target_category <- NA_character_
+  master$confidence      <- NA_character_
+
+  for (i in seq_len(nrow(mapping))) {
+    purpose_col <- purpose_col_map[tolower(trimws(mapping$acnc_subtype[i]))]
+    if (is.na(purpose_col) || !purpose_col %in% names(master)) next
+
+    purpose_match <- !is.na(master[[purpose_col]]) & master[[purpose_col]] == "Y"
+    keyword_match <- stringr::str_detect(
+      master$charity_legal_name,
+      stringr::regex(mapping$activity_keyword[i], ignore_case = TRUE)
+    )
+    untagged <- is.na(master$target_category)
+
+    hits <- purpose_match & keyword_match & untagged
+    master$target_category[hits] <- mapping$target_category[i]
+    master$confidence[hits]      <- mapping$confidence[i]
   }
+
+  n_tagged <- sum(!is.na(master$target_category))
+  cli::cli_alert_info("Target subtype mapping: {n_tagged} charities tagged")
   master
 }
 
-#' charity_financials: one row per charity-year with key AIS items.
+# ---- charity_financials -----------------------------------------------------
+
+#' One row per charity-year with AIS financial items joined to master attributes.
 build_charity_financials <- function(charity_master_path, ais_path,
                                      analytical_dir) {
-
   master <- arrow::read_parquet(charity_master_path) |>
     dplyr::select(abn, has_dgr, target_category, charity_size,
                   dplyr::any_of(c("state", "main_activity")))
   ais <- arrow::read_parquet(ais_path)
 
-  joined <- ais |>
-    dplyr::inner_join(master, by = "abn")
+  joined <- dplyr::inner_join(ais, master, by = "abn")
 
   out <- file.path(analytical_dir, "charity_financials.parquet")
-  write_parquet_safely(joined, out)
+  write_outputs(joined, out)
 }
 
-#' giving_aggregates: tidy the ATO/ACPNS aggregate giving series.
-build_giving_aggregates <- function(ato_stats_path, analytical_dir) {
+# ---- gifts tables -----------------------------------------------------------
 
-  ato <- arrow::read_parquet(ato_stats_path)
-
-  # Pass-through for now; tidying logic added once the ATO sheet structure
-  # is verified.
-  out <- file.path(analytical_dir, "giving_aggregates.parquet")
-  write_parquet_safely(ato, out)
+#' National gifts time series (ATO Table 1A), passed through to analytical layer.
+build_gifts_timeseries <- function(ato_table1_path, analytical_dir) {
+  raw <- arrow::read_parquet(ato_table1_path)
+  out <- file.path(analytical_dir, "gifts_timeseries.parquet")
+  write_outputs(raw, out)
 }
 
-#' Print a build summary so the operator knows what landed.
-summarise_build <- function(charity_master_path, charity_financials_path,
-                            giving_aggregates_path) {
+#' Gifts by demographic x income band (ATO Table 3A), passed through to analytical layer.
+build_gifts_by_income_year <- function(ato_table3_path, analytical_dir) {
+  raw <- arrow::read_parquet(ato_table3_path)
+  out <- file.path(analytical_dir, "gifts_by_income_year.parquet")
+  write_outputs(raw, out)
+}
 
-  paths <- c(charity_master_path, charity_financials_path, giving_aggregates_path)
-  for (p in paths) {
+# ---- build summary ----------------------------------------------------------
+
+summarise_build <- function(...) {
+  paths         <- c(...)
+  parquet_paths <- paths[grepl("\\.parquet$", paths)]
+  for (p in parquet_paths) {
     df <- arrow::read_parquet(p, as_data_frame = FALSE)
     cli::cli_alert_info("{.path {p}}: {nrow(df)} rows, {ncol(df)} cols")
   }

@@ -11,7 +11,7 @@
 #'     classification fields but DGR endorsement detail is in the ABN file.
 
 # URL is configured here so it's swappable when ACNC publishes a new release.
-ACNC_REGISTER_URL <- "https://data.gov.au/data/dataset/b050b242-4487-4306-abf5-07ca073e5594/resource/PLACEHOLDER/download/acnc-register.csv"
+ACNC_REGISTER_URL <- "https://data.gov.au/data/dataset/b050b242-4487-4306-abf5-07ca073e5594/resource/8fb32972-24e9-4c95-885e-7140be51be8a/download/datadotgov_main.csv"
 
 download_acnc_register <- function(raw_dir, force = FALSE) {
   dest <- raw_path(raw_dir, "acnc_register",

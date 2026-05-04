@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Rscript -e ' *)",
+      "PowerShell(python -c \"import openpyxl; wb = openpyxl.load_workbook\\(r'c:\\\\Users\\\\adamw\\\\Documents\\\\GitHub\\\\unlock-dgr-analysis\\\\data\\\\raw\\\\ato_stats\\\\ato_individuals_table1_20260501.xlsx', read_only=True, data_only=True\\); print\\('Sheets:', wb.sheetnames\\); ws = wb.active; rows = list\\(ws.iter_rows\\(max_row=12, values_only=True\\)\\); [print\\(r\\) for r in rows]\" 2>&1)",
+      "PowerShell(python -c \"import pandas as pd; df = pd.read_excel\\(r'c:\\\\Users\\\\adamw\\\\Documents\\\\GitHub\\\\unlock-dgr-analysis\\\\data\\\\raw\\\\ato_stats\\\\ato_individuals_table1_20260501.xlsx', sheet_name=None, header=None, nrows=12\\); print\\('Sheets:', list\\(df.keys\\(\\)\\)\\); [print\\(f'\\\\n--- {k} ---\\\\n', v.to_string\\(\\)\\) for k,v in df.items\\(\\)]\" 2>&1)",
+      "PowerShell(python -c \"import zipfile, os; z = zipfile.ZipFile\\(r'c:\\\\Users\\\\adamw\\\\Documents\\\\GitHub\\\\unlock-dgr-analysis\\\\data\\\\raw\\\\ato_stats\\\\ato_individuals_table1_20260501.xlsx'\\); print\\([f for f in z.namelist\\(\\) if 'sheet' in f.lower\\(\\) or 'workbook' in f.lower\\(\\)]\\)\")",
+      "PowerShell(Get-Content \"$env:APPDATA\\\\Code\\\\User\\\\settings.json\" -ErrorAction SilentlyContinue | Select-String -Pattern \"r\\\\.rterm|r\\\\.rpath|rpath\" -CaseSensitive:$false)"
+    ]
+  }
+}

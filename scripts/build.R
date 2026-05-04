@@ -11,4 +11,4 @@ library(targets)
 tar_make()
 
 # Show what was built
-tar_visnetwork()  # opens an HTML view of pipeline state (skip in headless runs)
+# tar_visnetwork()  # opens an HTML view of pipeline state (skip in headless runs)
