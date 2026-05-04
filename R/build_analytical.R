@@ -12,8 +12,14 @@ build_charity_master <- function(register_path, dgr_path, mapping_path,
   dgr      <- arrow::read_parquet(dgr_path)
   mapping  <- readr::read_csv(mapping_path, show_col_types = FALSE)
 
+  # Derive has_dgr from dgr_endorsed_from rather than the has_dgr column in
+  # abn_dgr.parquet. The ABR XML uses <dgrEndorsement>/<dgrFund> (camelCase)
+  # but ingest_abn_dgr previously grepped for "DGR>|DGRFund>" (uppercase),
+  # which never matched. dgr_endorsed_from is extracted from the inner
+  # <endorsedFrom> tag and is correctly populated, so it's the reliable signal.
   dgr_current <- dgr |>
-    dplyr::filter(has_dgr) |>
+    dplyr::filter(!is.na(dgr_endorsed_from)) |>
+    dplyr::mutate(has_dgr = TRUE) |>
     dplyr::select(abn, has_dgr, dgr_endorsed_from)
 
   master <- register |>
