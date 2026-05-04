@@ -1,9 +1,5 @@
 acnc_subtype,activity_keyword,target_category,confidence,reviewer,review_date,notes
-"Advancing social or public welfare","neighbourhood house","neighbourhood_houses","high","","","Plain match on subtype + activity keyword."
-"Advancing social or public welfare","community centre","neighbourhood_houses","medium","","","Some community centres operate as neighbourhood houses; manual check required."
-"Advancing health","injury prevention","injury_prevention","high","","",""
-"Advancing health","road safety","injury_prevention","medium","","","Includes road trauma support and prevention."
-"Advancing the security or safety of Australia or the Australian public","disaster preparedness","disaster_preparedness","high","","",""
-"Advancing the security or safety of Australia or the Australian public","emergency response","disaster_preparedness","medium","","","Distinguish preparedness vs response carefully — only preparedness is in scope."
-"Promoting or protecting human rights","human rights","human_rights_promotion","high","","",""
-"Promoting or protecting human rights","civil liberties","human_rights_promotion","medium","","",""
+"Advancing social or public welfare","neighbourhood house|community house|neighbourhood centre|neighborhood centre|community centre","neighbourhood_houses","high","","","Purpose column covers 14k+ charities — too broad alone. Name keywords narrow to neighbourhood houses and community centres specifically."
+"Advancing health","injury|prevention|ambulance|first aid|lifesaving|life saving|rescue|surf|trauma|road safety","injury_prevention","medium","","","Advancing health covers ~7k charities. Keywords filter to injury and safety-relevant organisations. Borderline cases need manual review."
+"Advancing the security or safety of Australia or the Australian public","disaster|emergency|SES|bushfire|flood|storm|cyclone|rescue|lifesaving|preparedness|coast guard|search and rescue","disaster_preparedness","medium","","","Purpose column without keyword returns 1128 results dominated by veterans groups. Keywords target emergency and disaster-specific charities."
+"Promoting or protecting human rights","","human_rights_promotion","high","","","Purpose column returns 859 charities and is specific enough. No keyword filter applied."

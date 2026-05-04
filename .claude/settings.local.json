@@ -10,7 +10,8 @@
       "PowerShell(Rscript scripts/build.R 2>&1)",
       "PowerShell(& \"C:\\\\Program Files\\\\R\\\\R-4.6.0\\\\bin\\\\Rscript.exe\" scripts/build.R 2>&1)",
       "PowerShell(& \"C:\\\\Program Files\\\\R\\\\R-4.6.0\\\\bin\\\\Rscript.exe\" -e \"library\\(arrow\\); dgr <- read_parquet\\('data/processed/abn_dgr.parquet'\\); print\\(table\\(dgr\\\\$has_dgr, useNA='always'\\)\\)\" 2>&1)",
-      "PowerShell(& \"C:\\\\Program Files\\\\R\\\\R-4.6.0\\\\bin\\\\Rscript.exe\" diagnose_dgr.R 2>&1)"
+      "PowerShell(& \"C:\\\\Program Files\\\\R\\\\R-4.6.0\\\\bin\\\\Rscript.exe\" diagnose_dgr.R 2>&1)",
+      "PowerShell(& \"C:\\\\Program Files\\\\R\\\\R-4.6.0\\\\bin\\\\Rscript.exe\" inspect_register.R 2>&1)"
     ]
   }
 }

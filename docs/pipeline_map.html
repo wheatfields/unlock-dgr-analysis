@@ -3,866 +3,154 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unlock DGR Analysis — Pipeline Map</title>
+<title>Unlock DGR — Pipeline Map</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: #f0f2f5;
-  color: #212529;
-  padding: 24px 28px 32px;
-}
-
-/* ── Header ─────────────────────────────────────────────── */
-.header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-.header h1 {
-  font-size: 21px;
-  font-weight: 700;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #f4f5f7;
   color: #1a1a2e;
-  letter-spacing: -0.3px;
+  padding: 32px 40px 48px;
 }
-.header .sub {
+h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.meta {
   font-size: 12.5px;
   color: #6c757d;
-  margin-top: 5px;
+  margin-bottom: 28px;
 }
-
-/* ── Pipeline row ────────────────────────────────────────── */
-.pipeline {
-  display: flex;
-  align-items: flex-start;
-  gap: 0;
-  margin-bottom: 20px;
-}
-
-.stage {
-  flex: 1;
+.diagram-wrap {
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-  overflow: hidden;
-  min-width: 190px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.09);
+  padding: 32px 24px;
+  overflow-x: auto;
 }
-
-.stage-hdr {
-  padding: 9px 14px;
-  color: #fff;
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.mermaid {
+  min-width: 900px;
 }
-.hdr-blue   { background: #1565c0; }
-.hdr-orange { background: #c84b00; }
-.hdr-green  { background: #2e7d32; }
-.hdr-teal   { background: #006064; }
-
-.stage-body { padding: 10px; display: flex; flex-direction: column; gap: 7px; }
-
-/* ── Node cards ──────────────────────────────────────────── */
-.node {
-  border-radius: 6px;
-  padding: 9px 11px;
-  border-left: 3px solid;
-}
-.n-source    { background: #e3f2fd; border-color: #1565c0; }
-.n-processed { background: #fff3e0; border-color: #c84b00; }
-.n-api       { background: #ede7f6; border-color: #7b1fa2; }
-.n-lookup    { background: #f3e5f5; border-color: #7b1fa2; }
-.n-analytic  { background: #e8f5e9; border-color: #2e7d32; }
-.n-dist      { background: #e0f2f1; border-color: #006064; }
-
-.n-name   { font-size: 12px; font-weight: 600; color: #1a1a2e; margin-bottom: 3px; }
-.n-detail { font-size: 11px; color: #495057; line-height: 1.45; }
-.n-tags   { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
-
-.tag {
-  display: inline-block;
-  font-size: 9.5px;
-  font-weight: 600;
-  padding: 1px 7px;
-  border-radius: 10px;
-  letter-spacing: 0.2px;
-}
-.t-csv         { background: #bbdefb; color: #0d47a1; }
-.t-xlsx        { background: #ffe0b2; color: #bf360c; }
-.t-api         { background: #e1bee7; color: #4a148c; }
-.t-parquet     { background: #fff9c4; color: #f57f17; }
-.t-parquet-csv { background: #dcedc8; color: #33691e; }
-.t-console     { background: #eceff1; color: #37474f; }
-
-/* ── Connector arrows ────────────────────────────────────── */
-.arrow {
+.legend {
+  margin-top: 24px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  flex-shrink: 0;
-  color: #adb5bd;
-  font-size: 26px;
-  padding-top: 28px;
-  user-select: none;
-}
-
-/* ── Lookup band ─────────────────────────────────────────── */
-.lookup-band {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-  overflow: hidden;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: stretch;
-}
-.lookup-label {
-  background: #7b1fa2;
-  color: #fff;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 12px 8px;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-}
-.lookup-inner {
-  padding: 12px 16px;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 20px;
+  gap: 24px;
   flex-wrap: wrap;
-}
-.lookup-desc {
-  font-size: 11.5px;
-  color: #495057;
-  max-width: 420px;
-  line-height: 1.5;
-}
-.lookup-desc strong { color: #1a1a2e; }
-.cats { display: flex; flex-wrap: wrap; gap: 7px; }
-.cat {
-  background: #f3e5f5;
-  color: #6a1b9a;
-  border: 1px solid #ce93d8;
-  border-radius: 5px;
-  padding: 3px 10px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-/* ── Reference table ─────────────────────────────────────── */
-.ref {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-  overflow: hidden;
-}
-.ref-hdr {
-  padding: 11px 16px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+  font-size: 12px;
   color: #495057;
 }
-
-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-th {
-  text-align: left;
-  padding: 7px 14px;
-  background: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #6c757d;
-}
-td {
-  padding: 7px 14px;
-  border-bottom: 1px solid #f2f2f2;
-  color: #495057;
-  vertical-align: top;
-  line-height: 1.5;
-}
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: #fafbfc; }
-
-.mono {
-  font-family: 'Consolas', 'Cascadia Code', 'Monaco', monospace;
-  font-size: 10.5px;
-  background: #f1f3f5;
-  color: #c2185b;
-  padding: 1px 5px;
-  border-radius: 3px;
-  white-space: nowrap;
-}
-
-.stage-row { background: #f8f9fa !important; }
-.stage-row td {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: #6c757d;
-  padding: 5px 14px;
-  border-bottom: 1px solid #dee2e6;
-}
-
-/* ── Joins section ───────────────────────────────────────── */
-.joins-section {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-.joins-hdr {
-  padding: 11px 16px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #495057;
-}
-.joins-body {
-  padding: 14px 16px;
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.join-card {
-  flex: 1;
-  min-width: 290px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  overflow: hidden;
-}
-.join-card-hdr {
-  padding: 7px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-}
-.jch-left  { background: #2e7d32; }
-.jch-inner { background: #1565c0; }
-.jch-map   { background: #7b1fa2; }
-.join-diagram {
+.legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 11px 12px;
-  background: #fafafa;
-  border-bottom: 1px solid #f0f0f0;
+  gap: 7px;
 }
-.jt-box {
-  flex: 1;
-  border-radius: 5px;
-  padding: 7px 10px;
-  text-align: center;
-}
-.jt-left  { background: #e8f5e9; border: 1px solid #a5d6a7; }
-.jt-right { background: #e3f2fd; border: 1px solid #90caf9; }
-.jt-box .jt-name { font-size: 11.5px; font-weight: 700; color: #1a1a2e; }
-.jt-box .jt-sub  { font-size: 10px; color: #6c757d; margin-top: 2px; }
-.join-mid {
-  text-align: center;
-  flex-shrink: 0;
-}
-.join-mid .jm-type {
-  display: block;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 2px 7px;
-  border-radius: 10px;
-  margin-bottom: 3px;
-}
-.jm-left  { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
-.jm-inner { background: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
-.join-mid .jm-key { font-size: 10px; color: #6c757d; font-family: monospace; }
-.join-card-body {
-  padding: 10px 12px;
-  font-size: 11px;
-  color: #495057;
-  line-height: 1.5;
-}
-.join-result {
-  margin-top: 8px;
-  padding: 7px 10px;
-  background: #f8f9fa;
-  border-radius: 5px;
-  border-left: 3px solid;
-  font-size: 11px;
-}
-.jr-left  { border-color: #2e7d32; }
-.jr-inner { border-color: #1565c0; }
-.jr-map   { border-color: #7b1fa2; }
-.join-result strong { color: #1a1a2e; font-weight: 600; }
-.ic { font-family: monospace; font-size: 10px; background: #f1f3f5; padding: 1px 4px; border-radius: 3px; }
-
-/* join badge on pipeline nodes */
-.jbadge {
-  display: inline-block;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  padding: 1px 6px;
-  border-radius: 10px;
-}
-.jb-left  { background: #c8e6c9; color: #1b5e20; }
-.jb-inner { background: #bbdefb; color: #0d47a1; }
-
-/* ── Assumptions section ─────────────────────────────────── */
-.assumptions {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-.assumptions-hdr {
-  padding: 11px 16px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #495057;
-}
-.assumptions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 10px;
-  padding: 14px;
-}
-.ac {
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-  padding: 10px 12px;
-  border-left: 3px solid;
-}
-.ac.low    { border-color: #66bb6a; }
-.ac.medium { border-color: #ffa726; }
-.ac.high   { border-color: #ef5350; }
-.a-pill {
-  display: inline-block;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 1px 6px;
-  border-radius: 10px;
-  margin-bottom: 4px;
-}
-.a-pill.low    { background: #e8f5e9; color: #2e7d32; }
-.a-pill.medium { background: #fff3e0; color: #e65100; }
-.a-pill.high   { background: #ffebee; color: #c62828; }
-.a-area {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-.ac.low    .a-area { color: #2e7d32; }
-.ac.medium .a-area { color: #e65100; }
-.ac.high   .a-area { color: #c62828; }
-.a-text   { font-size: 11px; color: #212529; line-height: 1.45; margin-bottom: 5px; }
-.a-impact { font-size: 10.5px; color: #6c757d; line-height: 1.4; }
-.a-impact::before { content: "Impact: "; font-weight: 600; color: #495057; }
-
-/* ── Footer ─────────────────────────────────────────────── */
-.footer {
-  text-align: center;
-  margin-top: 18px;
-  font-size: 10.5px;
-  color: #adb5bd;
-}
-.footer code {
-  font-family: monospace;
-  background: #f1f3f5;
-  padding: 1px 6px;
+.swatch {
+  width: 28px;
+  height: 14px;
   border-radius: 3px;
-  color: #495057;
+  flex-shrink: 0;
 }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Unlock DGR Analysis — Data Pipeline Process Map</h1>
-  <p class="sub">Justice Connect · Actuaries Institute Hackathon 2026 · Reproducible pipeline built with R <strong>targets</strong></p>
-</div>
+<h1>Unlock DGR Analysis — Pipeline Map</h1>
+<div class="meta">Data flows left → right through four stages: Sources → Raw → Processed → Analytical. Labels on arrows show the R function or join type.</div>
 
-<!-- ═══════════════════════════  PIPELINE FLOW  ═══════════════════════════ -->
-<div class="pipeline">
+<div class="diagram-wrap">
+<div class="mermaid">
+%%{init: {"theme": "base", "themeVariables": {
+  "primaryColor": "#e8f4fd",
+  "primaryTextColor": "#1a1a2e",
+  "primaryBorderColor": "#4a90d9",
+  "lineColor": "#555",
+  "secondaryColor": "#fff8e6",
+  "tertiaryColor": "#f0faf0",
+  "fontSize": "13px"
+}}}%%
+flowchart LR
 
-  <!-- ── Stage 1: Data Sources ── -->
-  <div class="stage">
-    <div class="stage-hdr hdr-blue">1 · Data Sources</div>
-    <div class="stage-body">
+  subgraph SRC["① SOURCES"]
+    direction TB
+    ACNC_W(["ACNC Website\ndata.gov.au/dataset/acnc"])
+    ATO_W(["data.gov.au\nATO Taxation Statistics 2022-23"])
+    ABR_W(["ABR Lookup API\nabr.business.gov.au"])
+    LKP[/"lookups/target_subtype_mapping.csv\n4 rows — one per target category"/]
+  end
 
-      <div class="node n-source">
-        <div class="n-name">ACNC Charity Register</div>
-        <div class="n-detail">All registered Australian charities. ~60k rows. Published monthly on data.gov.au.</div>
-        <div class="n-tags"><span class="tag t-csv">CSV</span></div>
-      </div>
+  subgraph RAW["② data/raw/   dated files, never overwritten"]
+    direction TB
+    REG_R["acnc_register_DATE.csv\ndata/raw/acnc/"]
+    AIS_R["acnc_ais_DATE.csv\ndata/raw/acnc/"]
+    T1_R["ato_individuals_table1_DATE.xlsx\ndata/raw/ato_stats/"]
+    T3_R["ato_individuals_table3_DATE.xlsx\ndata/raw/ato_stats/"]
+    ANC_R["ato_ancillary_funds_DATE.xlsx\ndata/raw/ato_stats/"]
+  end
 
-      <div class="node n-source">
-        <div class="n-name">ACNC AIS 2022</div>
-        <div class="n-detail">Annual Information Statement financials. One row per charity-year. Published annually (~18 month lag).</div>
-        <div class="n-tags"><span class="tag t-csv">CSV</span></div>
-      </div>
+  subgraph PROC["③ data/processed/   one Parquet per source"]
+    direction TB
+    REG_P["acnc_register.parquet\n65,430 rows · 69 cols\nkey: abn"]
+    DGR_P["abn_dgr.parquet\n65,430 rows · 4 cols\nabn · has_dgr · dgr_endorsed_from · ingestion_date"]
+    AIS_P["acnc_ais.parquet\n~49k rows\nkey: abn · ais_year"]
+    T1_P["ato_individuals_table1.parquet\n41 rows · 5 cols\nincome_year · donors_no · gifts_amount_dollars"]
+    T3_P["ato_individuals_table3.parquet\n1,322 rows · 10 cols\nsex · age · income_range · gifts_no · gifts_amount_dollars"]
+    ANC_P["ato_ancillary_funds.parquet\n97 rows · 6 cols\nfund_type · metric · income_year · value"]
+  end
 
-      <div class="node n-source">
-        <div class="n-name">ATO Table 1A</div>
-        <div class="n-detail">National gifts time series 1978–79 to 2022–23. Donor count and total gift amount per year.</div>
-        <div class="n-tags"><span class="tag t-xlsx">XLSX</span></div>
-      </div>
+  subgraph ANAL["④ data/analytical/   joined, model-ready   .parquet + .csv"]
+    direction TB
+    MASTER["charity_master\n65,430 rows · 75 cols\nabn · has_dgr · dgr_endorsed_from\ntarget_category · confidence\ncharity_size · state · main_activity\n+ all ACNC register fields"]
+    FIN["charity_financials\n49,046 rows · 102 cols\nabn · ais_year · has_dgr · target_category\ntotal_revenue · donations_and_bequests\ngovernment_grants · total_expenses\n+ all AIS financial fields"]
+    GTS["gifts_timeseries\n41 rows · 5 cols\n1978-79 to 2022-23\nnational donors + gift totals"]
+    GIY["gifts_by_income_year\n1,322 rows · 10 cols\n2022-23 only\nsex x age x income band"]
+    ANC_A["ancillary_fund_stats\n97 rows · 6 cols\nPAF: $10.7B net assets\nPuAF: $4.7B net assets\n2000-01 to 2022-23"]
+  end
 
-      <div class="node n-source">
-        <div class="n-name">ATO Table 3A</div>
-        <div class="n-detail">Gifts by sex × taxable status × age × income band for 2022–23. 169 columns.</div>
-        <div class="n-tags"><span class="tag t-xlsx">XLSX</span></div>
-      </div>
+  %% Source → Raw
+  ACNC_W -->|"download_acnc_register()"| REG_R
+  ACNC_W -->|"download_acnc_ais()"| AIS_R
+  ATO_W  -->|"download_ato_table1()"| T1_R
+  ATO_W  -->|"download_ato_table3()"| T3_R
+  ATO_W  -->|"download_ato_ancillary()"| ANC_R
 
-    </div>
-  </div>
+  %% Raw → Processed
+  REG_R -->|"ingest_acnc_register()\njanitor::clean_names()"| REG_P
+  AIS_R -->|"ingest_acnc_ais()\njanitor::clean_names()"| AIS_P
+  T1_R  -->|"ingest_ato_table1()\npivot wide → long"| T1_P
+  T3_R  -->|"ingest_ato_table3()\nselect cols 1-5 + gift cols"| T3_P
+  ANC_R -->|"ingest_ato_ancillary()\nTable 4A + 4B combined"| ANC_P
 
-  <div class="arrow">›</div>
+  %% ABR API lookup
+  REG_P -->|"ingest_abn_dgr()\n64,850 ABN lookups\n5 concurrent · ~20 min"| ABR_W
+  ABR_W -->|"27,623 DGR matches\nparsed from XML response"| DGR_P
 
-  <!-- ── Stage 2: Processed ── -->
-  <div class="stage">
-    <div class="stage-hdr hdr-orange">2 · Processed</div>
-    <div class="stage-body">
+  %% Processed → Analytical
+  REG_P  -->|"LEFT JOIN on abn"| MASTER
+  DGR_P  -->|"LEFT JOIN on abn"| MASTER
+  LKP    -->|"purpose col = Y\n+ keyword regex match\nfirst match wins"| MASTER
 
-      <div class="node n-processed">
-        <div class="n-name">acnc_register.parquet</div>
-        <div class="n-detail">ABN normalised to digits-only. ingestion_date + source_file columns appended.</div>
-        <div class="n-tags"><span class="tag t-parquet">Parquet</span></div>
-      </div>
+  MASTER -->|"INNER JOIN on abn\n16,384 charities dropped\n(no AIS record)"| FIN
+  AIS_P  -->|"INNER JOIN on abn"| FIN
 
-      <div class="node n-api">
-        <div class="n-name">abn_dgr.parquet</div>
-        <div class="n-detail">DGR endorsement derived from ABR XML API using Register ABNs. ~60k lookups, 5 concurrent. First run ~15–30 min; instant on subsequent runs (targets cache). Requires <strong>ABR_GUID</strong> in .Renviron.</div>
-        <div class="n-tags"><span class="tag t-api">ABR API</span><span class="tag t-parquet">Parquet</span></div>
-      </div>
-
-      <div class="node n-processed">
-        <div class="n-name">acnc_ais.parquet</div>
-        <div class="n-detail">Multi-year union on common columns. ABN column name-normalised across schema versions.</div>
-        <div class="n-tags"><span class="tag t-parquet">Parquet</span></div>
-      </div>
-
-      <div class="node n-processed">
-        <div class="n-name">ato_individuals_table1.parquet</div>
-        <div class="n-detail">Gifts time series in tidy format. Unicode dashes normalised in year labels.</div>
-        <div class="n-tags"><span class="tag t-parquet">Parquet</span></div>
-      </div>
-
-      <div class="node n-processed">
-        <div class="n-name">ato_individuals_table3.parquet</div>
-        <div class="n-detail">Demographic gifts data in tidy format. 2 gift columns extracted from 169-column source.</div>
-        <div class="n-tags"><span class="tag t-parquet">Parquet</span></div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="arrow">›</div>
-
-  <!-- ── Stage 3: Analytical ── -->
-  <div class="stage">
-    <div class="stage-hdr hdr-green">3 · Analytical Layer</div>
-    <div class="stage-body">
-
-      <div class="node n-analytic">
-        <div class="n-name">charity_master</div>
-        <div class="n-detail">Register LEFT JOIN abn_dgr on abn — all charities retained, has_dgr coalesced to FALSE where unmatched. Target category assigned via row-wise condition match (purpose col = "Y" AND name keyword).</div>
-        <div class="n-tags"><span class="tag t-parquet-csv">Parquet + CSV</span><span class="jbadge jb-left" style="margin-left:4px;">LEFT JOIN</span></div>
-      </div>
-
-      <div class="node n-analytic">
-        <div class="n-name">charity_financials</div>
-        <div class="n-detail">charity_master INNER JOIN acnc_ais on abn — AIS reporters only. Brings has_dgr, target_category, charity_size, state, main_activity onto financial rows. Non-AIS charities excluded.</div>
-        <div class="n-tags"><span class="tag t-parquet-csv">Parquet + CSV</span><span class="jbadge jb-inner" style="margin-left:4px;">INNER JOIN</span></div>
-      </div>
-
-      <div class="node n-analytic">
-        <div class="n-name">gifts_timeseries</div>
-        <div class="n-detail">National giving 1978–2023. Columns: income_year, donors_no, gifts_amount_dollars.</div>
-        <div class="n-tags"><span class="tag t-parquet-csv">Parquet + CSV</span></div>
-      </div>
-
-      <div class="node n-analytic">
-        <div class="n-name">gifts_by_income_year</div>
-        <div class="n-detail">2022–23 demographic breakdown. Columns: sex, taxable_status, age_range, income_range, gifts_no, gifts_amount_dollars.</div>
-        <div class="n-tags"><span class="tag t-parquet-csv">Parquet + CSV</span></div>
-      </div>
-
-      <div class="node n-analytic" style="background:#f1f8e9; border-color:#558b2f;">
-        <div class="n-name">build_summary</div>
-        <div class="n-detail">Final pipeline step. Logs row + column counts for all analytical Parquets to console.</div>
-        <div class="n-tags"><span class="tag t-console">Console</span></div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="arrow">›</div>
-
-  <!-- ── Stage 4: Distribution ── -->
-  <div class="stage">
-    <div class="stage-hdr hdr-teal">4 · Distribution</div>
-    <div class="stage-body">
-
-      <div class="node n-dist">
-        <div class="n-name">SharePoint — latest/</div>
-        <div class="n-detail">Current Parquet files synced via local OneDrive mount. Volunteers query directly with DuckDB — no clone required.</div>
-      </div>
-
-      <div class="node n-dist">
-        <div class="n-name">SharePoint — versions/YYYYMMDD/</div>
-        <div class="n-detail">Dated snapshot written alongside latest/. Enables reproducibility and comparison across pipeline runs.</div>
-      </div>
-
-      <div class="node n-dist">
-        <div class="n-name">Docs bundle</div>
-        <div class="n-detail">methodology.md, data_dictionary.md, and volunteer_setup.md copied to latest/ so volunteers have full context.</div>
-      </div>
-
-      <div class="node n-dist" style="background:#fafafa; border-color:#90a4ae;">
-        <div class="n-name">Trigger</div>
-        <div class="n-detail">Run manually after build:<br><span style="font-family:monospace;font-size:10.5px;color:#37474f;">source("scripts/sync_outputs.R")</span><br>Requires UNLOCKDGR_SHAREPOINT_PATH in .Renviron.</div>
-      </div>
-
-    </div>
-  </div>
+  T1_P  -->|"pass-through"| GTS
+  T3_P  -->|"pass-through"| GIY
+  ANC_P -->|"pass-through"| ANC_A
 
 </div>
-<!-- ═══════════════════════  END PIPELINE FLOW  ═══════════════════════════ -->
 
-<!-- ── Joins section ── -->
-<div class="joins-section">
-  <div class="joins-hdr">Key Joins — How datasets are combined to produce analytical outputs</div>
-  <div class="joins-body">
-
-    <div class="join-card">
-      <div class="join-card-hdr jch-left">charity_master — LEFT JOIN (register ⋈ abn_dgr)</div>
-      <div class="join-diagram">
-        <div class="jt-box jt-left">
-          <div class="jt-name">acnc_register</div>
-          <div class="jt-sub">~60k rows · all charities · left side</div>
-        </div>
-        <div class="join-mid">
-          <span class="jm-type jm-left">LEFT JOIN</span>
-          <div class="jm-key">on: abn</div>
-        </div>
-        <div class="jt-box jt-right">
-          <div class="jt-name">abn_dgr</div>
-          <div class="jt-sub">~60k rows · ABR lookups · right side</div>
-        </div>
-      </div>
-      <div class="join-card-body">
-        Every charity in the register is preserved. Where no ABR record is found, <span class="ic">has_dgr</span> is coalesced to <span class="ic">FALSE</span> (not NA). The target category mapping is then applied as a row-wise condition (not a join) to add <span class="ic">target_category</span> and <span class="ic">confidence</span> columns.
-        <div class="join-result jr-left">
-          <strong>Row count:</strong> identical to acnc_register (~60k). No rows are lost. DGR status defaults to FALSE for any charity whose ABN lookup failed or returned no DGR record.
-        </div>
-      </div>
-    </div>
-
-    <div class="join-card">
-      <div class="join-card-hdr jch-inner">charity_financials — INNER JOIN (master ⋈ acnc_ais)</div>
-      <div class="join-diagram">
-        <div class="jt-box jt-left">
-          <div class="jt-name">charity_master</div>
-          <div class="jt-sub">~60k rows · all charities · left side</div>
-        </div>
-        <div class="join-mid">
-          <span class="jm-type jm-inner">INNER JOIN</span>
-          <div class="jm-key">on: abn</div>
-        </div>
-        <div class="jt-box jt-right">
-          <div class="jt-name">acnc_ais</div>
-          <div class="jt-sub">AIS reporters only · right side</div>
-        </div>
-      </div>
-      <div class="join-card-body">
-        Only charities present in both tables are retained. Charities exempt from AIS filing (many small and basic religious charities) will not appear. Columns pulled from master: <span class="ic">has_dgr</span>, <span class="ic">target_category</span>, <span class="ic">charity_size</span>, <span class="ic">state</span>, <span class="ic">main_activity</span>.
-        <div class="join-result jr-inner">
-          <strong>Row count:</strong> AIS reporters only — a strict subset of the ~60k register. One row per charity per AIS year. Use charity_master for universe-level counts; use charity_financials for financial analysis only.
-        </div>
-      </div>
-    </div>
-
-    <div class="join-card">
-      <div class="join-card-hdr jch-map">target_subtype_mapping — Row-wise condition match (not a SQL join)</div>
-      <div class="join-diagram" style="flex-direction:column; align-items:flex-start; gap:6px; padding:10px 12px;">
-        <div style="font-size:11px; color:#495057; line-height:1.6;">
-          For each charity row in charity_master, iterate the mapping CSV:<br>
-          <strong>Rule match =</strong>
-          <span class="ic">purpose_col = "Y"</span>
-          <strong> AND </strong>
-          <span class="ic">charity_legal_name LIKE keyword</span> (case-insensitive)
-        </div>
-        <div style="font-size:11px; color:#495057;">
-          First matching rule wins. Rules are ordered high → medium confidence so lower-confidence rules cannot shadow stronger ones.
-        </div>
-      </div>
-      <div class="join-card-body">
-        8 rules across 4 categories are evaluated per charity. Charities matching no rule receive <span class="ic">target_category = NA</span>. The ACNC register has no free-text activity field, so the charity legal name is used as the activity proxy.
-        <div class="join-result jr-map">
-          <strong>Output columns added:</strong> <span class="ic">target_category</span> (one of 4 values or NA) and <span class="ic">confidence</span> (high / medium / NA). Non-matched rows are not dropped — they remain in charity_master with NA category.
-        </div>
-      </div>
-    </div>
-
-  </div>
+<div class="legend">
+  <div class="legend-item"><div class="swatch" style="background:#e8f4fd;border:1.5px solid #4a90d9;"></div> External sources / lookups</div>
+  <div class="legend-item"><div class="swatch" style="background:#fff8e6;border:1.5px solid #e6a817;"></div> Raw files (data/raw/)</div>
+  <div class="legend-item"><div class="swatch" style="background:#f0faf0;border:1.5px solid #4caf50;"></div> Processed Parquet (data/processed/)</div>
+  <div class="legend-item"><div class="swatch" style="background:#fdf0f8;border:1.5px solid #c06;"></div> Analytical outputs (data/analytical/)</div>
+  <div class="legend-item" style="margin-left:16px;color:#888;">Arrow labels show R function name or join type &amp; key.</div>
+</div>
 </div>
 
-<!-- ── Lookup band ── -->
-<div class="lookup-band">
-  <div class="lookup-label">Lookup</div>
-  <div class="lookup-inner">
-    <div class="lookup-desc">
-      <strong>target_subtype_mapping.csv</strong> — feeds into <em>charity_master</em>.<br>
-      8 mapping rules that assign charities to 4 campaign target categories. Matching requires ACNC purpose column = "Y" <em>and</em> charity name containing the activity keyword (case-insensitive). First match wins; rows ordered high → medium confidence.
-    </div>
-    <div class="cats">
-      <span class="cat">neighbourhood_houses</span>
-      <span class="cat">injury_prevention</span>
-      <span class="cat">disaster_preparedness</span>
-      <span class="cat">human_rights_promotion</span>
-    </div>
-  </div>
-</div>
-
-<!-- ── Assumptions section ── -->
-<div class="assumptions">
-  <div class="assumptions-hdr">Assumptions &amp; Caveats</div>
-  <div class="assumptions-grid">
-
-    <div class="ac low">
-      <span class="a-pill low">Low risk</span>
-      <div class="a-area">ABN as universal join key</div>
-      <div class="a-text">ABN uniquely identifies each entity across ACNC, ABR, and AIS. After digit-only normalisation (<span class="ic">str_remove_all(abn, "[^0-9]")</span>), ABNs are treated as consistent and 11 digits across all sources. ABNs shorter than 11 digits are excluded from DGR lookup.</div>
-      <div class="a-impact">ABN format is stable and legally mandated. Normalisation removes only whitespace and hyphens. Low risk of spurious mismatches.</div>
-    </div>
-
-    <div class="ac medium">
-      <span class="a-pill medium">Medium risk</span>
-      <div class="a-area">DGR detection via XML text pattern</div>
-      <div class="a-text"><span class="ic">has_dgr</span> is set by grepping raw ABR XML for <span class="ic">DGR&gt;</span> or <span class="ic">DGRFund&gt;</span>. This is a text-pattern match, not a structured XML parse. DGR item numbers (Item 1 general gifts, Item 2 cultural bequests, etc.) are not captured — endorsement status and start date only.</div>
-      <div class="a-impact">Edge cases in XML structure could cause false negatives. Cannot distinguish between DGR types. Verify a sample of matched/unmatched ABNs against the public ABN Lookup website.</div>
-    </div>
-
-    <div class="ac medium">
-      <span class="a-pill medium">Medium risk</span>
-      <div class="a-area">ABR API failures treated as non-DGR</div>
-      <div class="a-text">Network errors and timeouts during the ABR lookup are counted, warned to console, and silently skipped. After the LEFT JOIN, charities with failed lookups receive <span class="ic">has_dgr = FALSE</span> — not NA or an error flag.</div>
-      <div class="a-impact">DGR charities with API failures will be miscoded as non-DGR. Always check the failure count logged at runtime; it should be near zero. Rerun the pipeline if failures were significant (targets cache will retry).</div>
-    </div>
-
-    <div class="ac high">
-      <span class="a-pill high">High risk</span>
-      <div class="a-area">Target category relies on charity name keyword</div>
-      <div class="a-text">Target category assignment requires both the ACNC purpose boolean = "Y" AND the charity legal name to contain the activity keyword (case-insensitive). The ACNC register has no free-text activity field, so the legal name is the only available activity proxy.</div>
-      <div class="a-impact">Charities with uninformative names, abbreviations, acronyms, or activities spanning multiple categories may be missed or miscategorised. Manual spot-check of matched and unmatched rows is strongly recommended before publishing category counts.</div>
-    </div>
-
-    <div class="ac low">
-      <span class="a-pill low">Low risk</span>
-      <div class="a-area">First-match rule in subtype mapping</div>
-      <div class="a-text">The mapping CSV is processed top-to-bottom. The first rule whose conditions both match is applied; remaining rules are skipped for that charity. Rows are ordered high → medium confidence so high-confidence rules take priority.</div>
-      <div class="a-impact">Intended behaviour — review rule ordering carefully whenever new rules are added to the CSV. A medium-confidence rule placed above a high-confidence rule for the same category would shadow it.</div>
-    </div>
-
-    <div class="ac medium">
-      <span class="a-pill medium">Medium risk</span>
-      <div class="a-area">INNER JOIN excludes non-AIS charities</div>
-      <div class="a-text"><span class="ic">charity_financials</span> uses an INNER JOIN. Charities exempt from AIS filing — many small charities and basic religious charities — are absent. The output represents the AIS-filing population, not all registered charities.</div>
-      <div class="a-impact">Financial analysis will systematically under-represent small and religious charities. Use <span class="ic">charity_master</span> (not charity_financials) when computing totals that should include all charities regardless of AIS filing status.</div>
-    </div>
-
-    <div class="ac low">
-      <span class="a-pill low">Low risk</span>
-      <div class="a-area">AIS multi-year common-column union</div>
-      <div class="a-text">When multiple AIS years are loaded, the pipeline binds on the intersection of column names across all years. Year-specific columns are silently dropped. Currently only AIS 2022 is in scope, so no columns are lost today.</div>
-      <div class="a-impact">When additional years are added, the column intersection may silently shrink. The pipeline logs the common-column count — inspect it when onboarding a new year.</div>
-    </div>
-
-    <div class="ac low">
-      <span class="a-pill low">Low risk</span>
-      <div class="a-area">ATO table structure assumed stable</div>
-      <div class="a-text">Table 1A is expected to have exactly 2 "Gifts or donations" rows (count unit "no." and dollar unit "$"). Table 3A is expected to have exactly 2 columns matching the pattern <span class="ic">(?i)gifts</span>. The pipeline fails explicitly with an error if either expectation is not met.</div>
-      <div class="a-impact">Fail-fast guards make this safe — the build breaks rather than silently producing wrong numbers. Requires a code fix if ATO restructures the table in future releases of the annual data.</div>
-    </div>
-
-    <div class="ac medium">
-      <span class="a-pill medium">Medium risk</span>
-      <div class="a-area">AUD nominal — no inflation adjustment</div>
-      <div class="a-text">All ATO dollar figures are in AUD nominal (face-value) terms as published. No CPI deflation is applied anywhere in this pipeline. The gifts time series spans 1978–79 to 2022–23 (44 years).</div>
-      <div class="a-impact">Nominal comparisons over this period substantially overstate real giving growth. Apply an ABS CPI deflator in analysis scripts before publishing any long-run time-series comparisons or growth figures.</div>
-    </div>
-
-    <div class="ac low">
-      <span class="a-pill low">Low risk</span>
-      <div class="a-area">Distribution step is manual</div>
-      <div class="a-text">SharePoint sync (<span class="ic">sync_outputs.R</span>) is not part of the targets pipeline and must be run separately after each build. Volunteers query from SharePoint, not from this repo.</div>
-      <div class="a-impact">Volunteers may query stale Parquet files if the sync step is skipped. Version folders (<span class="ic">versions/YYYYMMDD/</span>) provide an audit trail of what was synced and when.</div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ── Reference table ── -->
-<div class="ref">
-  <div class="ref-hdr">Pipeline Step Reference</div>
-  <table>
-    <thead>
-      <tr>
-        <th style="width:18%">Target</th>
-        <th style="width:20%">Function</th>
-        <th style="width:22%">Inputs</th>
-        <th style="width:22%">Output path</th>
-        <th>Notes</th>
-      </tr>
-    </thead>
-    <tbody>
-
-      <tr class="stage-row"><td colspan="5">Stage 1 — Downloads</td></tr>
-
-      <tr>
-        <td><span class="mono">acnc_register_raw</span></td>
-        <td><span class="mono">download_acnc_register()</span></td>
-        <td>data.gov.au</td>
-        <td><span class="mono">data/raw/acnc_register/acnc_register_YYYYMMDD.csv</span></td>
-        <td>Skips download if dated file exists. Force re-fetch with <span class="mono">scripts/refresh_sources.R</span>.</td>
-      </tr>
-      <tr>
-        <td><span class="mono">acnc_ais_raw</span></td>
-        <td><span class="mono">download_acnc_ais()</span></td>
-        <td>data.gov.au</td>
-        <td><span class="mono">data/raw/acnc_ais/acnc_ais_2022_YYYYMMDD.csv</span></td>
-        <td>Multi-year capable via <span class="mono">AIS_URLS</span> map. Add new years without changing downstream code.</td>
-      </tr>
-      <tr>
-        <td><span class="mono">ato_table1_raw</span></td>
-        <td><span class="mono">download_ato_table1()</span></td>
-        <td>data.gov.au</td>
-        <td><span class="mono">data/raw/ato_stats/ato_individuals_table1_YYYYMMDD.xlsx</span></td>
-        <td>ATO Taxation Statistics 2022–23 individuals series.</td>
-      </tr>
-      <tr>
-        <td><span class="mono">ato_table3_raw</span></td>
-        <td><span class="mono">download_ato_table3()</span></td>
-        <td>data.gov.au</td>
-        <td><span class="mono">data/raw/ato_stats/ato_individuals_table3_YYYYMMDD.xlsx</span></td>
-        <td>ATO Taxation Statistics 2022–23 individuals series.</td>
-      </tr>
-
-      <tr class="stage-row"><td colspan="5">Stage 2 — Ingestion / Processing</td></tr>
-
-      <tr>
-        <td><span class="mono">acnc_register</span></td>
-        <td><span class="mono">ingest_acnc_register()</span></td>
-        <td><span class="mono">acnc_register_raw</span></td>
-        <td><span class="mono">data/processed/acnc_register.parquet</span></td>
-        <td>ABN stripped to digits only. <span class="mono">ingestion_date</span> and <span class="mono">source_file</span> appended.</td>
-      </tr>
-      <tr>
-        <td><span class="mono">abn_dgr</span></td>
-        <td><span class="mono">ingest_abn_dgr()</span></td>
-        <td><span class="mono">acnc_register</span> + ABR XML API</td>
-        <td><span class="mono">data/processed/abn_dgr.parquet</span></td>
-        <td>Reads ABNs from register parquet. ~60k lookups, max 5 concurrent, retry 3×. Requires <span class="mono">ABR_GUID</span> env var. Schema: abn, has_dgr, dgr_endorsed_from, ingestion_date.</td>
-      </tr>
-      <tr>
-        <td><span class="mono">acnc_ais</span></td>
-        <td><span class="mono">ingest_acnc_ais()</span></td>
-        <td><span class="mono">acnc_ais_raw</span></td>
-        <td><span class="mono">data/processed/acnc_ais.parquet</span></td>
-        <td>Per-year read then bind on common columns. ABN column name-normalised across schema versions (historical ACNC renames).</td>
-      </tr>
-      <tr>
-        <td><span class="mono">ato_table1</span></td>
-        <td><span class="mono">ingest_ato_table1()</span></td>
-        <td><span class="mono">ato_table1_raw</span></td>
-        <td><span class="mono">data/processed/ato_individuals_table1.parquet</span></td>
-        <td>Extracts "Gifts or donations" rows (count + amount). Unicode dashes in year labels normalised to ASCII hyphen.</td>
-      </tr>
-      <tr>
-        <td><span class="mono">ato_table3</span></td>
-        <td><span class="mono">ingest_ato_table3()</span></td>
-        <td><span class="mono">ato_table3_raw</span></td>
-        <td><span class="mono">data/processed/ato_individuals_table3.parquet</span></td>
-        <td>Extracts 2 gift columns from 169-column wide source. Retains 5 dimension columns (sex, taxable_status, age_range, income_range, tax_bracket).</td>
-      </tr>
-
-      <tr class="stage-row"><td colspan="5">Stage 3 — Analytical Layer</td></tr>
-
-      <tr>
-        <td><span class="mono">charity_master</span></td>
-        <td><span class="mono">build_charity_master()</span></td>
-        <td><span class="mono">acnc_register</span> + <span class="mono">abn_dgr</span> + <span class="mono">target_subtype_mapping</span></td>
-        <td><span class="mono">data/analytical/charity_master.parquet + .csv</span></td>
-        <td>Left join DGR onto register by ABN. Subtype mapping: ACNC purpose column = "Y" AND name keyword match; first-match rule; adds target_category + confidence columns.</td>
-      </tr>
-      <tr>
-        <td><span class="mono">charity_financials</span></td>
-        <td><span class="mono">build_charity_financials()</span></td>
-        <td><span class="mono">charity_master</span> + <span class="mono">acnc_ais</span></td>
-        <td><span class="mono">data/analytical/charity_financials.parquet + .csv</span></td>
-        <td>Inner join AIS onto master on ABN. Brings has_dgr, target_category, charity_size, state, main_activity onto financial rows.</td>
-      </tr>
-      <tr>
-        <td><span class="mono">gifts_timeseries</span></td>
-        <td><span class="mono">build_gifts_timeseries()</span></td>
-        <td><span class="mono">ato_table1</span></td>
-        <td><span class="mono">data/analytical/gifts_timeseries.parquet + .csv</span></td>
-        <td>Pass-through to analytical layer (writes Parquet + CSV pair for volunteer access).</td>
-      </tr>
-      <tr>
-        <td><span class="mono">gifts_by_income_year</span></td>
-        <td><span class="mono">build_gifts_by_income_year()</span></td>
-        <td><span class="mono">ato_table3</span></td>
-        <td><span class="mono">data/analytical/gifts_by_income_year.parquet + .csv</span></td>
-        <td>Pass-through to analytical layer (writes Parquet + CSV pair for volunteer access).</td>
-      </tr>
-      <tr>
-        <td><span class="mono">build_summary</span></td>
-        <td><span class="mono">summarise_build()</span></td>
-        <td>All 4 analytical outputs</td>
-        <td>Console</td>
-        <td>Terminal step. Reads each analytical Parquet and logs row + column counts. Fails the build if any output is unreadable.</td>
-      </tr>
-
-    </tbody>
-  </table>
-</div>
-
-<div class="footer">
-  Generated 2026-05-04 &nbsp;·&nbsp; unlock-dgr-analysis &nbsp;·&nbsp;
-  Run pipeline: <code>source("scripts/build.R")</code> &nbsp;·&nbsp;
-  Sync outputs: <code>source("scripts/sync_outputs.R")</code>
-</div>
-
+<script>
+mermaid.initialize({ startOnLoad: true, flowchart: { htmlLabels: true, curve: 'basis' } });
+</script>
 </body>
 </html>

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.ato.gov.au)",
+      "WebFetch(domain:webcache.googleusercontent.com)"
+    ]
+  }
+}

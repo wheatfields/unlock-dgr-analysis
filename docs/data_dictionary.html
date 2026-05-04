@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unlock DGR — Data Dictionary</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #f4f5f7;
+  color: #1a1a2e;
+  padding: 32px 40px 56px;
+  font-size: 13.5px;
+}
+h1 { font-size: 21px; font-weight: 700; margin-bottom: 4px; }
+.meta { font-size: 12.5px; color: #6c757d; margin-bottom: 36px; }
+
+/* nav */
+.nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
+.nav a {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  color: #1a6fc4;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav a:hover { background: #e8f4fd; }
+
+/* dataset block */
+.dataset {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  margin-bottom: 32px;
+  overflow: hidden;
+}
+.ds-header {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.ds-header h2 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.ds-header .path { font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 12px; color: #6c757d; }
+.ds-stats { display: flex; gap: 20px; margin-top: 8px; font-size: 12px; color: #495057; }
+.ds-stats span strong { color: #1a1a2e; }
+
+/* group heading inside table */
+.group-row td {
+  background: #f8f9fa;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #868e96;
+  padding: 6px 12px;
+  border-top: 1px solid #e9ecef;
+}
+
+table { width: 100%; border-collapse: collapse; }
+th {
+  background: #f8f9fa;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-align: left;
+  padding: 9px 12px;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: top;
+  line-height: 1.45;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafbfc; }
+
+.col-name {
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px;
+  color: #c7254e;
+  white-space: nowrap;
+}
+.badge {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.t-chr  { background: #e8f4fd; color: #1a6fc4; }
+.t-num  { background: #e8f8e8; color: #2e7d32; }
+.t-lgl  { background: #fff3e0; color: #e65100; }
+.t-dat  { background: #f3e5f5; color: #7b1fa2; }
+.t-int  { background: #e0f7fa; color: #006064; }
+
+.fill-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: #dee2e6;
+  width: 80px;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  margin-right: 5px;
+}
+.fill-bar-inner {
+  height: 100%;
+  border-radius: 3px;
+  background: #4caf50;
+  position: absolute;
+  left: 0; top: 0;
+}
+.fill-bar-inner.low { background: #ef9a9a; }
+.fill-bar-inner.mid { background: #ffcc02; }
+
+.example { font-size: 11.5px; color: #6c757d; font-style: italic; }
+.desc { font-size: 12.5px; }
+.key-col { background: #fffde7; }
+.pipeline-col { background: #f3e5f5; }
+</style>
+</head>
+<body>
+
+<h1>Unlock DGR Analysis — Data Dictionary</h1>
+<div class="meta">Five analytical datasets in <code>data/analytical/</code>. Each is available as both <code>.parquet</code> (DuckDB / R) and <code>.csv</code> (Excel). Last pipeline run: 4 May 2026.</div>
+
+<div class="nav">
+  <a href="#charity_master">charity_master</a>
+  <a href="#charity_financials">charity_financials</a>
+  <a href="#gifts_timeseries">gifts_timeseries</a>
+  <a href="#gifts_by_income_year">gifts_by_income_year</a>
+  <a href="#ancillary_fund_stats">ancillary_fund_stats</a>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ charity_master -->
+<div class="dataset" id="charity_master">
+<div class="ds-header">
+  <h2>charity_master</h2>
+  <div class="path">data/analytical/charity_master.parquet &nbsp;|&nbsp; data/analytical/charity_master.csv</div>
+  <div class="ds-stats">
+    <span><strong>65,430</strong> rows</span>
+    <span><strong>75</strong> cols</span>
+    <span>Grain: one row per registered charity (ABN)</span>
+    <span>Sources: ACNC Register + ABR API + target_subtype_mapping.csv</span>
+  </div>
+</div>
+<table>
+<thead><tr><th style="width:240px">Column</th><th>Type</th><th>Fill</th><th>Description</th><th>Example</th></tr></thead>
+<tbody>
+
+<tr class="group-row"><td colspan="5">Identity</td></tr>
+<tr class="key-col">
+  <td class="col-name">abn</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:99%"></div></div>99%</td>
+  <td class="desc">11-digit Australian Business Number. Primary join key across all datasets.</td>
+  <td class="example">69357421621</td>
+</tr>
+<tr><td class="col-name">charity_legal_name</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Registered legal name as recorded by ACNC.</td>
+  <td class="example">Caboolture Men's Shed Incorporated</td>
+</tr>
+<tr><td class="col-name">other_organisation_names</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:10%"></div></div>10%</td>
+  <td class="desc">Trading or alternate names. Sparsely populated.</td>
+  <td class="example">Donnybrook Men's Shed Inc.</td>
+</tr>
+<tr><td class="col-name">charity_website</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:66%"></div></div>66%</td>
+  <td class="desc">Organisation website URL as reported to ACNC.</td>
+  <td class="example">https://www.caboolturemensshed.com.au/</td>
+</tr>
+
+<tr class="group-row"><td colspan="5">Location</td></tr>
+<tr><td class="col-name">address_line_1</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:90%"></div></div>90%</td>
+  <td class="desc">Street address line 1.</td><td class="example">36 Devine Ct</td></tr>
+<tr><td class="col-name">address_line_2</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:9%"></div></div>9%</td>
+  <td class="desc">Street address line 2. Rarely populated.</td><td class="example">Balwyn North</td></tr>
+<tr><td class="col-name">address_line_3</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:1%"></div></div>1%</td>
+  <td class="desc">Street address line 3. Very rarely populated.</td><td class="example">—</td></tr>
+<tr><td class="col-name">town_city</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:90%"></div></div>90%</td>
+  <td class="desc">City or suburb.</td><td class="example">Morayfield</td></tr>
+<tr><td class="col-name">state</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:90%"></div></div>90%</td>
+  <td class="desc">State abbreviation. <strong>Note:</strong> raw ACNC data has inconsistent casing (NSW/nsw/Nsw) and a small number of invalid values (Bali, Mentone). Not yet normalised.</td>
+  <td class="example">QLD | VIC | NSW</td></tr>
+<tr><td class="col-name">postcode</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:90%"></div></div>90%</td>
+  <td class="desc">4-digit postcode.</td><td class="example">4506</td></tr>
+<tr><td class="col-name">country</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:88%"></div></div>88%</td>
+  <td class="desc">Country of registered address. Predominantly "Australia".</td><td class="example">Australia</td></tr>
+
+<tr class="group-row"><td colspan="5">Registration &amp; Size</td></tr>
+<tr><td class="col-name">registration_date</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Date registered with ACNC (DD/MM/YYYY string).</td><td class="example">01/07/2023</td></tr>
+<tr><td class="col-name">date_organisation_established</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:95%"></div></div>95%</td>
+  <td class="desc">Date the organisation was originally founded.</td><td class="example">01/11/1999</td></tr>
+<tr><td class="col-name">charity_size</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:90%"></div></div>90%</td>
+  <td class="desc">ACNC size classification. Small (&lt;$250k revenue), Medium ($250k–$1M), Large (&gt;$1M).</td>
+  <td class="example">Small | Medium | Large</td></tr>
+<tr><td class="col-name">financial_year_end</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Month the charity's financial year ends. Most are 30-Jun.</td><td class="example">30-Jun | 31-Dec</td></tr>
+<tr><td class="col-name">number_of_responsible_persons</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Count of board / governing body members reported to ACNC.</td><td class="example">3 | 8</td></tr>
+<tr><td class="col-name">pbi</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:20%"></div></div>20%</td>
+  <td class="desc">"Y" if the charity is a Public Benevolent Institution — a specific DGR category with additional obligations.</td><td class="example">Y</td></tr>
+<tr><td class="col-name">hpc</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:4%"></div></div>4%</td>
+  <td class="desc">"Y" if the charity is a Health Promotion Charity — another specific DGR sub-category.</td><td class="example">Y</td></tr>
+
+<tr class="group-row"><td colspan="5">Geographic Operations (Y = operates in that state)</td></tr>
+<tr><td class="col-name">operates_in_act / nsw / nt / qld / sa / tas / vic / wa</td><td><span class="badge t-chr">chr</span></td>
+  <td>—</td>
+  <td class="desc">Eight binary flag columns. "Y" if the charity self-reports operating in that state. NA means not operating there (not missing).</td>
+  <td class="example">Y</td></tr>
+<tr><td class="col-name">operating_countries</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:57%"></div></div>57%</td>
+  <td class="desc">Comma-separated ISO country codes for international operations.</td><td class="example">AUS | AUS, KHM, PNG</td></tr>
+
+<tr class="group-row"><td colspan="5">Charitable Purposes (Y = this is a stated purpose; NA = not this purpose)</td></tr>
+<tr><td class="col-name">advancing_social_or_public_welfare</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:22%"></div></div>22%</td>
+  <td class="desc">Used to identify neighbourhood houses (purpose + keyword match). 14,237 charities have Y.</td><td class="example">Y</td></tr>
+<tr><td class="col-name">advancing_health</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:11%"></div></div>11%</td>
+  <td class="desc">Used to identify injury prevention charities (purpose + keyword match). ~7k charities.</td><td class="example">Y</td></tr>
+<tr><td class="col-name">advancing_security_or_safety_of_australia_or_australian_public</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:2%"></div></div>2%</td>
+  <td class="desc">Used to identify disaster preparedness charities (purpose + keyword match). ~1,128 charities before keyword filter.</td><td class="example">Y</td></tr>
+<tr><td class="col-name">promoting_or_protecting_human_rights</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:1%"></div></div>1%</td>
+  <td class="desc">Used to identify human rights charities (purpose alone — no keyword filter needed). 859 charities.</td><td class="example">Y</td></tr>
+<tr><td class="col-name">advancing_education / advancing_religion / advancing_culture / etc.</td><td><span class="badge t-chr">chr</span></td>
+  <td>—</td>
+  <td class="desc">Remaining ACNC purpose columns (8 further categories). Same "Y / NA" encoding.</td><td class="example">Y</td></tr>
+
+<tr class="group-row"><td colspan="5">Beneficiary Groups (Y = serves this group; NA = does not)</td></tr>
+<tr><td class="col-name" style="white-space:normal;word-break:break-word;">aboriginal_or_tsi, adults, aged_persons, children, families, females, males, financially_disadvantaged, people_with_disabilities, youth, … (22 columns)</td>
+  <td><span class="badge t-chr">chr</span></td><td>—</td>
+  <td class="desc">ACNC beneficiary flag columns. "Y" if the charity self-reports serving this group. Useful for sub-group analysis within target categories.</td>
+  <td class="example">Y</td></tr>
+
+<tr class="group-row"><td colspan="5">DGR Status — added by pipeline (ABR API lookup)</td></tr>
+<tr class="pipeline-col"><td class="col-name">has_dgr</td><td><span class="badge t-lgl">lgl</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc"><strong>Key campaign variable.</strong> TRUE if the charity has a current DGR endorsement (derived from dgr_endorsed_from being non-NA). 27,623 TRUE (42%), 37,807 FALSE (58%).</td>
+  <td class="example">TRUE | FALSE</td></tr>
+<tr class="pipeline-col"><td class="col-name">dgr_endorsed_from</td><td><span class="badge t-dat">date</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:42%"></div></div>42%</td>
+  <td class="desc">Date DGR endorsement became effective, from ABR XML. NA for non-DGR charities. Used as the authoritative DGR signal (has_dgr is derived from this).</td>
+  <td class="example">2024-06-13 | 2010-07-01</td></tr>
+
+<tr class="group-row"><td colspan="5">Campaign Target Categories — added by pipeline (target_subtype_mapping.csv)</td></tr>
+<tr class="pipeline-col"><td class="col-name">target_category</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:2%"></div></div>2%</td>
+  <td class="desc"><strong>Key campaign variable.</strong> One of four values if matched; NA otherwise. Matched on ACNC purpose column + legal name keyword regex. neighbourhood_houses (259), human_rights_promotion (847), injury_prevention (86), disaster_preparedness (79). First match wins.</td>
+  <td class="example">neighbourhood_houses | human_rights_promotion</td></tr>
+<tr class="pipeline-col"><td class="col-name">confidence</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:2%"></div></div>2%</td>
+  <td class="desc">"high" or "medium" — reviewer confidence in the category match. human_rights_promotion and neighbourhood_houses are high; injury_prevention and disaster_preparedness are medium (keyword matching is approximate).</td>
+  <td class="example">high | medium</td></tr>
+
+<tr class="group-row"><td colspan="5">Metadata</td></tr>
+<tr><td class="col-name">ingestion_date</td><td><span class="badge t-dat">date</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Date the ACNC register file was downloaded and ingested.</td><td class="example">2026-05-01</td></tr>
+<tr><td class="col-name">source_file</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Filename of the raw source CSV (dated, from data/raw/acnc/).</td><td class="example">acnc_register_20260501.csv</td></tr>
+
+</tbody>
+</table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ charity_financials -->
+<div class="dataset" id="charity_financials">
+<div class="ds-header">
+  <h2>charity_financials</h2>
+  <div class="path">data/analytical/charity_financials.parquet &nbsp;|&nbsp; data/analytical/charity_financials.csv</div>
+  <div class="ds-stats">
+    <span><strong>49,046</strong> rows</span>
+    <span><strong>102</strong> cols</span>
+    <span>Grain: one row per charity (ABN) for AIS year 2022</span>
+    <span>Sources: ACNC AIS + charity_master (INNER JOIN on abn)</span>
+  </div>
+</div>
+<table>
+<thead><tr><th style="width:240px">Column</th><th>Type</th><th>Fill</th><th>Description</th><th>Example</th></tr></thead>
+<tbody>
+
+<tr class="group-row"><td colspan="5">Identity &amp; Submission</td></tr>
+<tr class="key-col"><td class="col-name">abn</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">11-digit ABN. Join key to charity_master.</td><td class="example">11000047950</td></tr>
+<tr><td class="col-name">charity_name</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Legal name as recorded in the AIS submission.</td><td class="example">Sydney Missionary &amp; Bible College</td></tr>
+<tr><td class="col-name">ais_year</td><td><span class="badge t-int">int</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">AIS reporting year. Currently a single year (2022) in this dataset.</td><td class="example">2022</td></tr>
+<tr><td class="col-name">registration_status</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Always "Registered" in this extract (ACNC only publishes active charities).</td><td class="example">Registered</td></tr>
+<tr><td class="col-name">charity_size.x</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">ACNC size from AIS (Small / Medium / Large). Use charity_size.y (from master) for consistency.</td><td class="example">Large | Medium | Small</td></tr>
+<tr><td class="col-name">basic_religious_charity</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">"y" if exempt from full AIS financial reporting obligations. Financial fields may be zero-filled for these charities.</td><td class="example">y | n</td></tr>
+<tr><td class="col-name">ais_due_date</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Date the AIS was due (DD/MM/YYYY).</td><td class="example">30/06/2023</td></tr>
+<tr><td class="col-name">date_ais_received / financial_report_date_received</td><td><span class="badge t-chr">chr</span></td>
+  <td>—</td>
+  <td class="desc">Dates the AIS and accompanying financial report were received by ACNC.</td><td class="example">19/06/2023</td></tr>
+<tr><td class="col-name">fin_report_from / fin_report_to</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:84%"></div></div>84%</td>
+  <td class="desc">Start and end dates of the financial reporting period (DD/MM/YYYY). Useful when period differs from standard 30 June year-end.</td><td class="example">01/07/2021 | 30/06/2022</td></tr>
+<tr><td class="col-name">cash_or_accrual</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:61%"></div></div>61%</td>
+  <td class="desc">Accounting basis used. Only populated for larger charities required to submit financial statements.</td><td class="example">Cash | Accrual</td></tr>
+
+<tr class="group-row"><td colspan="5">Activities &amp; Staff</td></tr>
+<tr><td class="col-name">conducted_activities</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">"y" if the charity conducted charitable activities during the year.</td><td class="example">y | n</td></tr>
+<tr><td class="col-name">how_purposes_were_pursued</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:97%"></div></div>97%</td>
+  <td class="desc">Free-text description of activities. Not used in modelling; useful for manual validation of target category matches.</td><td class="example">Conducting interdenominational community based Bible College…</td></tr>
+<tr><td class="col-name">staff_full_time / staff_part_time / staff_casual</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Headcount by employment type as at reporting date.</td><td class="example">35 | 14 | 25</td></tr>
+<tr><td class="col-name">total_full_time_equivalent_staff</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Total FTE staff (calculated by charity). More comparable across organisations than raw headcounts.</td><td class="example">53.75 | 125</td></tr>
+<tr><td class="col-name">staff_volunteers</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Number of volunteers. Stored as character due to some text entries.</td><td class="example">3 | 0 | 150</td></tr>
+
+<tr class="group-row"><td colspan="5">Revenue ($)</td></tr>
+<tr><td class="col-name">revenue_from_government</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">All government grants, contracts, and subsidies. Includes Commonwealth, state, and local government.</td><td class="example">10,408,971</td></tr>
+<tr><td class="col-name">donations_and_bequests</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc"><strong>Key campaign variable.</strong> Total individual donations and bequests received. Central to modelling DGR reform impact — the gap between DGR and non-DGR charities in this field quantifies the funding disadvantage.</td>
+  <td class="example">1,884,192</td></tr>
+<tr><td class="col-name">revenue_from_goods_and_services</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Fees, sales, and service revenue from clients or customers.</td><td class="example">5,021,865</td></tr>
+<tr><td class="col-name">revenue_from_investments</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Dividends, interest, rent, and other investment returns.</td><td class="example">65,012</td></tr>
+<tr><td class="col-name">all_other_revenue</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Revenue not captured in other categories.</td><td class="example">75,427</td></tr>
+<tr><td class="col-name">total_revenue</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Sum of the five revenue lines above.</td><td class="example">6,919,849</td></tr>
+<tr><td class="col-name">other_income</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Non-revenue income items (e.g. gains on asset sales, in-kind contributions).</td><td class="example">37,079</td></tr>
+<tr><td class="col-name">total_gross_income</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">total_revenue + other_income. The broadest income measure.</td><td class="example">6,956,928</td></tr>
+
+<tr class="group-row"><td colspan="5">Expenses ($)</td></tr>
+<tr><td class="col-name">employee_expenses</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Wages, salaries, superannuation, and other employee-related costs.</td><td class="example">3,028,857</td></tr>
+<tr><td class="col-name">interest_expenses</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Borrowing costs.</td><td class="example">2,812</td></tr>
+<tr><td class="col-name">grants_and_donations_made_for_use_in_australia</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Grants and donations distributed to other organisations within Australia.</td><td class="example">848,177</td></tr>
+<tr><td class="col-name">grants_and_donations_made_for_use_outside_australia</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Grants and donations distributed internationally.</td><td class="example">3,295,799</td></tr>
+<tr><td class="col-name">all_other_expenses</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">All expenses not captured in the specific lines above.</td><td class="example">4,316,877</td></tr>
+<tr><td class="col-name">total_expenses</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Sum of all expense lines. Compare to total_gross_income for surplus/deficit.</td><td class="example">8,196,723</td></tr>
+
+<tr class="group-row"><td colspan="5">Surplus / Deficit ($)</td></tr>
+<tr><td class="col-name">net_surplus_deficit</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">total_revenue minus total_expenses. Negative = operating deficit. Key financial sustainability indicator.</td><td class="example">-1,239,795 | 96,532</td></tr>
+<tr><td class="col-name">total_comprehensive_income</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Net surplus/deficit plus other comprehensive income items (e.g. asset revaluations).</td><td class="example">-1,239,797</td></tr>
+
+<tr class="group-row"><td colspan="5">Balance Sheet ($)</td></tr>
+<tr><td class="col-name">total_current_assets</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Cash and assets expected to be converted within 12 months.</td><td class="example">2,987,097</td></tr>
+<tr><td class="col-name">total_non_current_assets</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Property, equipment, and long-term investments.</td><td class="example">67,142,624</td></tr>
+<tr><td class="col-name">total_assets</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">total_current_assets + total_non_current_assets.</td><td class="example">70,129,721</td></tr>
+<tr><td class="col-name">total_current_liabilities</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Obligations due within 12 months.</td><td class="example">929,614</td></tr>
+<tr><td class="col-name">total_non_current_liabilities</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Long-term debts and obligations.</td><td class="example">133,507</td></tr>
+<tr><td class="col-name">total_liabilities</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">total_current_liabilities + total_non_current_liabilities.</td><td class="example">1,063,121</td></tr>
+<tr><td class="col-name">net_assets_liabilities</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">total_assets minus total_liabilities. Equity of the organisation. Another financial sustainability indicator.</td><td class="example">69,066,600</td></tr>
+
+<tr class="group-row"><td colspan="5">Key Management Personnel</td></tr>
+<tr><td class="col-name">key_management_personnel</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:10%"></div></div>10%</td>
+  <td class="desc">"Yes" if the charity disclosed key management personnel remuneration (larger charities only).</td><td class="example">Yes | No</td></tr>
+<tr><td class="col-name">number_of_key_management_personnel</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:10%"></div></div>10%</td>
+  <td class="desc">Count of executives / senior staff whose remuneration was disclosed.</td><td class="example">3 | 20</td></tr>
+<tr><td class="col-name">total_paid_to_key_management_personnel</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:10%"></div></div>10%</td>
+  <td class="desc">Total remuneration paid to key management personnel ($).</td><td class="example">379,634 | 1,310,088</td></tr>
+
+<tr class="group-row"><td colspan="5">State Regulatory (registration &amp; fundraising numbers)</td></tr>
+<tr><td class="col-name">submitted_report_act / nsw / nt / qld / sa / tas / vic / wa</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Eight flags: "y" if the charity submitted a state fundraising report to that jurisdiction.</td><td class="example">y | n</td></tr>
+<tr><td class="col-name">association_number_* (8 cols)</td><td><span class="badge t-chr">chr</span></td>
+  <td>—</td>
+  <td class="desc">Incorporated association registration numbers by state. Sparsely populated — only relevant where the charity is incorporated as an association in that state.</td><td class="example">Y0040815 | IA18344</td></tr>
+<tr><td class="col-name">fundraising_number_* (8 cols)</td><td><span class="badge t-chr">chr</span></td>
+  <td>—</td>
+  <td class="desc">State fundraising licence numbers. Sparsely populated.</td><td class="example">11337 | CH2136</td></tr>
+
+<tr class="group-row"><td colspan="5">Pipeline-added columns (from charity_master via INNER JOIN)</td></tr>
+<tr class="pipeline-col"><td class="col-name">has_dgr</td><td><span class="badge t-lgl">lgl</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">DGR status from ABR API. 20,738 TRUE (42%), 28,308 FALSE (58%). Use for DGR vs non-DGR comparisons.</td>
+  <td class="example">TRUE | FALSE</td></tr>
+<tr class="pipeline-col"><td class="col-name">target_category</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner low" style="width:2%"></div></div>2%</td>
+  <td class="desc">Campaign target category (neighbourhood_houses, injury_prevention, disaster_preparedness, human_rights_promotion). NA for untagged charities.</td>
+  <td class="example">neighbourhood_houses</td></tr>
+<tr class="pipeline-col"><td class="col-name">charity_size.y</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Size from charity_master (preferred — use this over charity_size.x).</td><td class="example">Small | Medium | Large</td></tr>
+<tr class="pipeline-col"><td class="col-name">state</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:91%"></div></div>91%</td>
+  <td class="desc">State from charity_master. Note: inconsistent casing in source data — normalise before use in state-level analysis.</td>
+  <td class="example">NSW | QLD | VIC</td></tr>
+
+</tbody>
+</table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ gifts_timeseries -->
+<div class="dataset" id="gifts_timeseries">
+<div class="ds-header">
+  <h2>gifts_timeseries</h2>
+  <div class="path">data/analytical/gifts_timeseries.parquet &nbsp;|&nbsp; data/analytical/gifts_timeseries.csv</div>
+  <div class="ds-stats">
+    <span><strong>41</strong> rows</span>
+    <span><strong>5</strong> cols</span>
+    <span>Grain: one row per income year (1978-79 to 2022-23)</span>
+    <span>Source: ATO Taxation Statistics 2022-23, Table 1A (Individuals)</span>
+  </div>
+</div>
+<table>
+<thead><tr><th style="width:240px">Column</th><th>Type</th><th>Fill</th><th>Description</th><th>Example</th></tr></thead>
+<tbody>
+<tr class="key-col"><td class="col-name">income_year</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Australian income year label (e.g. "2022-23"). Primary time dimension.</td><td class="example">1978-79 | 2022-23</td></tr>
+<tr><td class="col-name">donors_no</td><td><span class="badge t-int">int</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner mid" style="width:83%"></div></div>83%</td>
+  <td class="desc">Number of individual taxpayers who claimed a gift deduction. NA for years before 1985-86 (ATO did not publish donor counts for early years).</td>
+  <td class="example">3,925,705 | 4,780,000</td></tr>
+<tr><td class="col-name">gifts_amount_dollars</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Total value of tax-deductible gift claims by individuals ($). Nominal dollars — not inflation-adjusted. 2022-23 value: ~$4.3B.</td>
+  <td class="example">58,694,000 | 4,300,000,000</td></tr>
+<tr><td class="col-name">ingestion_date</td><td><span class="badge t-dat">date</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Date the ATO file was downloaded.</td><td class="example">2026-05-04</td></tr>
+<tr><td class="col-name">source_file</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Source Excel filename.</td><td class="example">ato_individuals_table1_20260501.xlsx</td></tr>
+</tbody>
+</table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ gifts_by_income_year -->
+<div class="dataset" id="gifts_by_income_year">
+<div class="ds-header">
+  <h2>gifts_by_income_year</h2>
+  <div class="path">data/analytical/gifts_by_income_year.parquet &nbsp;|&nbsp; data/analytical/gifts_by_income_year.csv</div>
+  <div class="ds-stats">
+    <span><strong>1,322</strong> rows</span>
+    <span><strong>10</strong> cols</span>
+    <span>Grain: one row per sex × taxable status × age range × income range (2022-23 only)</span>
+    <span>Source: ATO Taxation Statistics 2022-23, Table 3A (Individuals)</span>
+  </div>
+</div>
+<table>
+<thead><tr><th style="width:240px">Column</th><th>Type</th><th>Fill</th><th>Description</th><th>Example</th></tr></thead>
+<tbody>
+<tr class="key-col"><td class="col-name">sex</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Donor sex. Two values: Female, Male.</td><td class="example">Female | Male</td></tr>
+<tr class="key-col"><td class="col-name">taxable_status</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Whether the individual lodged as taxable or non-taxable.</td><td class="example">Taxable | Non Taxable</td></tr>
+<tr class="key-col"><td class="col-name">age_range</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Age band (13 categories from "Under 18" to "70 and over").</td><td class="example">c. 25 - 29 | f. 40 - 44</td></tr>
+<tr class="key-col"><td class="col-name">income_range</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Taxable income band (28 categories from "$6,000 or less" to "$1M+").</td><td class="example">ab. $6,001 to $10,000</td></tr>
+<tr><td class="col-name">tax_bracket</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Marginal tax bracket (5 tiers). Useful for calculating tax expenditure cost of DGR deductions.</td><td class="example">b. $18,201 to $45,000 | d. $120,001 to $180,000</td></tr>
+<tr><td class="col-name">gifts_no</td><td><span class="badge t-int">int</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Number of donors in this demographic cell who claimed a gift deduction.</td><td class="example">915 | 1,412</td></tr>
+<tr><td class="col-name">gifts_amount_dollars</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Total gift deduction value for this cell ($). Combined with tax_bracket, gives the tax expenditure cost per cell.</td><td class="example">63,068 | 103,811</td></tr>
+<tr><td class="col-name">income_year</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Always "2022-23" in this dataset.</td><td class="example">2022-23</td></tr>
+<tr><td class="col-name">ingestion_date</td><td><span class="badge t-dat">date</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Date the ATO file was downloaded.</td><td class="example">2026-05-04</td></tr>
+<tr><td class="col-name">source_file</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Source Excel filename.</td><td class="example">ato_individuals_table3_20260504.xlsx</td></tr>
+</tbody>
+</table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ ancillary_fund_stats -->
+<div class="dataset" id="ancillary_fund_stats">
+<div class="ds-header">
+  <h2>ancillary_fund_stats</h2>
+  <div class="path">data/analytical/ancillary_fund_stats.parquet &nbsp;|&nbsp; data/analytical/ancillary_fund_stats.csv</div>
+  <div class="ds-stats">
+    <span><strong>97</strong> rows</span>
+    <span><strong>6</strong> cols</span>
+    <span>Grain: one row per fund_type × metric × income_year</span>
+    <span>Source: ATO Taxation Statistics 2022-23, Table 4A + 4B (PAF &amp; PuAF)</span>
+  </div>
+</div>
+<table>
+<thead><tr><th style="width:240px">Column</th><th>Type</th><th>Fill</th><th>Description</th><th>Example</th></tr></thead>
+<tbody>
+<tr class="key-col"><td class="col-name">fund_type</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">PAF = Private Ancillary Fund (individual/family philanthropy); PuAF = Public Ancillary Fund (community foundation style). Both are legally required to distribute only to DGR entities.</td>
+  <td class="example">PAF | PuAF</td></tr>
+<tr class="key-col"><td class="col-name">metric</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">One of four metrics: <strong>total_funds_no</strong> (cumulative count of approved funds), <strong>donations_received</strong> (inflows to the fund, $), <strong>distributions_total</strong> (grants out to DGR recipients, $), <strong>net_assets</strong> (fund assets at year end, $).</td>
+  <td class="example">net_assets | distributions_total</td></tr>
+<tr class="key-col"><td class="col-name">income_year</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Income year label. Covers 2000-01 to 2022-23 (23 years). Not all metrics are available for all years — earlier years have no data for some measures.</td>
+  <td class="example">2000-01 | 2022-23</td></tr>
+<tr><td class="col-name">value</td><td><span class="badge t-num">num</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">The metric value. Units depend on metric: dollars ($) for donations_received, distributions_total, net_assets; count (no.) for total_funds_no. 2022-23 highlights: PAF net_assets = $10.7B; PuAF net_assets = $4.7B; combined distributions = $1.3B/year.</td>
+  <td class="example">10,656,863,927 | 2,196</td></tr>
+<tr><td class="col-name">ingestion_date</td><td><span class="badge t-dat">date</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Date the ATO file was downloaded.</td><td class="example">2026-05-04</td></tr>
+<tr><td class="col-name">source_file</td><td><span class="badge t-chr">chr</span></td>
+  <td><div class="fill-bar"><div class="fill-bar-inner" style="width:100%"></div></div>100%</td>
+  <td class="desc">Source Excel filename.</td><td class="example">ato_ancillary_funds_20260504.xlsx</td></tr>
+</tbody>
+</table>
+</div>
+
+</body>
+</html>

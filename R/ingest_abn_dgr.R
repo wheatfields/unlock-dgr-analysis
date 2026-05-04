@@ -55,7 +55,7 @@ ingest_abn_dgr <- function(register_path, processed_dir) {
     if (inherits(resp, "error")) { n_err <- n_err + 1L; next }
     tryCatch({
       body     <- httr2::resp_body_string(resp)
-      # ABR XML uses camelCase: <dgrEndorsement> and <dgrFund> (not <DGR>/<DGRFund>)
+      # ABR XML uses camelCase tags: <dgrEndorsement> and <dgrFund> (not <DGR>/<DGRFund>)
       has_dgr  <- grepl("dgrEndorsement>|dgrFund>", body)
       m        <- regmatches(body, regexpr("endorsedFrom>([^<]+)<", body))
       from_raw <- if (length(m) > 0) sub("endorsedFrom>([^<]+)<", "\\1", m) else NA_character_

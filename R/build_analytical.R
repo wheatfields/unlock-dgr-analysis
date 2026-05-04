@@ -36,12 +36,14 @@ build_charity_master <- function(register_path, dgr_path, mapping_path,
 #'
 #' Matching strategy:
 #'   1. The relevant ACNC boolean purpose column must equal "Y".
-#'   2. The charity's legal name must contain the activity keyword (case-insensitive).
+#'   2. If activity_keyword is non-empty, the charity's legal name must also
+#'      match the keyword pattern (case-insensitive regex, | for alternatives).
+#'      If activity_keyword is empty, the purpose column alone is sufficient.
 #'
-#' The ACNC register has boolean purpose columns but no free-text activity field,
-#' so name-based keyword matching is the best available proxy. Rows in the
-#' mapping CSV are processed in order; the first match wins (higher-confidence
-#' rows should appear first).
+#' Purpose columns alone are too broad for some categories (e.g. advancing_health
+#' covers ~7k charities). Keywords narrow those. For specific columns like
+#' promoting_or_protecting_human_rights, no keyword is needed.
+#' Rows are processed in order; first match wins.
 attach_target_subtype <- function(master, mapping) {
   # Maps human-readable acnc_subtype labels in the CSV to the actual column
   # names produced by janitor::clean_names() on the ACNC register.
@@ -64,10 +66,17 @@ attach_target_subtype <- function(master, mapping) {
     if (is.na(purpose_col) || !purpose_col %in% names(master)) next
 
     purpose_match <- !is.na(master[[purpose_col]]) & master[[purpose_col]] == "Y"
-    keyword_match <- stringr::str_detect(
-      master$charity_legal_name,
-      stringr::regex(mapping$activity_keyword[i], ignore_case = TRUE)
-    )
+
+    kw <- trimws(mapping$activity_keyword[i])
+    keyword_match <- if (is.na(kw) || nchar(kw) == 0) {
+      rep(TRUE, nrow(master))
+    } else {
+      stringr::str_detect(
+        master$charity_legal_name,
+        stringr::regex(kw, ignore_case = TRUE)
+      )
+    }
+
     untagged <- is.na(master$target_category)
 
     hits <- purpose_match & keyword_match & untagged
@@ -109,6 +118,19 @@ build_gifts_timeseries <- function(ato_table1_path, analytical_dir) {
 build_gifts_by_income_year <- function(ato_table3_path, analytical_dir) {
   raw <- arrow::read_parquet(ato_table3_path)
   out <- file.path(analytical_dir, "gifts_by_income_year.parquet")
+  write_outputs(raw, out)
+}
+
+# ---- ancillary fund stats ---------------------------------------------------
+
+#' ATO ancillary fund statistics (PAF/PuAF), passed through to analytical layer.
+#'
+#' Supports the campaign argument that PAFs (~$11B) and PuAFs (~$5B) can only
+#' distribute to DGR charities — DGR reform directly expands the pool of
+#' eligible recipients for this capital.
+build_ancillary_fund_stats <- function(ato_ancillary_path, analytical_dir) {
+  raw <- arrow::read_parquet(ato_ancillary_path)
+  out <- file.path(analytical_dir, "ancillary_fund_stats.parquet")
   write_outputs(raw, out)
 }
 

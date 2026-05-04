@@ -35,8 +35,9 @@ list(
 
   tar_target(acnc_register_raw, download_acnc_register(paths$raw), format = "file"),
   tar_target(acnc_ais_raw,      download_acnc_ais(paths$raw),      format = "file"),
-  tar_target(ato_table1_raw,    download_ato_table1(paths$raw),    format = "file"),
-  tar_target(ato_table3_raw,    download_ato_table3(paths$raw),    format = "file"),
+  tar_target(ato_table1_raw,      download_ato_table1(paths$raw),      format = "file"),
+  tar_target(ato_table3_raw,      download_ato_table3(paths$raw),      format = "file"),
+  tar_target(ato_ancillary_raw,   download_ato_ancillary(paths$raw),   format = "file"),
 
   # ---- Per-source processing ------------------------------------------------
   # Each ingestion target reads the raw file, parses to a tidy table, and
@@ -51,8 +52,9 @@ list(
              format = "file"),
 
   tar_target(acnc_ais,   ingest_acnc_ais(acnc_ais_raw,     paths$processed), format = "file"),
-  tar_target(ato_table1, ingest_ato_table1(ato_table1_raw, paths$processed), format = "file"),
-  tar_target(ato_table3, ingest_ato_table3(ato_table3_raw, paths$processed), format = "file"),
+  tar_target(ato_table1,    ingest_ato_table1(ato_table1_raw,       paths$processed), format = "file"),
+  tar_target(ato_table3,    ingest_ato_table3(ato_table3_raw,       paths$processed), format = "file"),
+  tar_target(ato_ancillary, ingest_ato_ancillary(ato_ancillary_raw, paths$processed), format = "file"),
 
   # ---- Lookups --------------------------------------------------------------
   tar_target(target_subtype_mapping,
@@ -80,8 +82,13 @@ list(
              build_gifts_by_income_year(ato_table3, paths$analytical),
              format = "file"),
 
+  tar_target(ancillary_fund_stats,
+             build_ancillary_fund_stats(ato_ancillary, paths$analytical),
+             format = "file"),
+
   # ---- Build report ---------------------------------------------------------
   tar_target(build_summary,
              summarise_build(charity_master, charity_financials,
-                             gifts_timeseries, gifts_by_income_year))
+                             gifts_timeseries, gifts_by_income_year,
+                             ancillary_fund_stats))
 )
