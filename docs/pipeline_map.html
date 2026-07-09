@@ -57,7 +57,7 @@ h1 {
 <body>
 
 <h1>Unlock DGR Analysis — Pipeline Map</h1>
-<div class="meta">Data flows left → right through four stages: Sources → Raw → Processed → Analytical. Labels on arrows show the R function or join type.</div>
+<div class="meta">Data flows left → right: Sources → Raw → Processed → Analytical → Reform model. Labels on arrows show the R function or join type. Updated 2026-07-09.</div>
 
 <div class="diagram-wrap">
 <div class="mermaid">
@@ -74,69 +74,108 @@ flowchart LR
 
   subgraph SRC["① SOURCES"]
     direction TB
-    ACNC_W(["ACNC Website\ndata.gov.au/dataset/acnc"])
-    ATO_W(["data.gov.au\nATO Taxation Statistics 2022-23"])
+    ACNC_W(["ACNC datasets\ndata.gov.au"])
+    ATO_W(["ATO Taxation Statistics\n2023-24 edition"])
     ABR_W(["ABR Lookup API\nabr.business.gov.au"])
-    LKP[/"lookups/target_subtype_mapping.csv\n4 rows — one per target category"/]
+    LKP_MAP[/"lookups/ais_column_mapping.csv\nAIS column harmonisation"/]
+    LKP_RULES[/"lookups/target_subtype_rules.csv\n21 rules · 13 whitelisted"/]
+    LKP_MAN[/"data/mappings/target_subtypes.csv\nmanual ABN additions"/]
   end
 
   subgraph RAW["② data/raw/   dated files, never overwritten"]
     direction TB
-    REG_R["acnc_register_DATE.csv\ndata/raw/acnc/"]
-    AIS_R["acnc_ais_DATE.csv\ndata/raw/acnc/"]
-    T1_R["ato_individuals_table1_DATE.xlsx\ndata/raw/ato_stats/"]
-    T3_R["ato_individuals_table3_DATE.xlsx\ndata/raw/ato_stats/"]
-    ANC_R["ato_ancillary_funds_DATE.xlsx\ndata/raw/ato_stats/"]
+    REG_R["acnc_register_DATE.csv"]
+    AIS_R["acnc_ais_YEAR_DATE.csv\n4 vintages: 2021–2024"]
+    PROG_R["acnc_ais_programs_DATE.csv\nCLASSIE classifications"]
+    T1_R["ato_individuals_table1.xlsx"]
+    T3_R["ato_individuals_table3.xlsx"]
+    CT3_R["ato_charities_table3.xlsx"]
+    CT4_R["ato_charities_table4.xlsx"]
   end
 
   subgraph PROC["③ data/processed/   one Parquet per source"]
     direction TB
-    REG_P["acnc_register.parquet\n65,430 rows · 69 cols\nkey: abn"]
-    DGR_P["abn_dgr.parquet\n65,430 rows · 4 cols\nabn · has_dgr · dgr_endorsed_from · ingestion_date"]
-    AIS_P["acnc_ais.parquet\n~49k rows\nkey: abn · ais_year"]
-    T1_P["ato_individuals_table1.parquet\n41 rows · 5 cols\nincome_year · donors_no · gifts_amount_dollars"]
-    T3_P["ato_individuals_table3.parquet\n1,322 rows · 10 cols\nsex · age · income_range · gifts_no · gifts_amount_dollars"]
-    ANC_P["ato_ancillary_funds.parquet\n97 rows · 6 cols\nfund_type · metric · income_year · value"]
+    REG_P["acnc_register.parquet\n65,430 rows"]
+    DGR_P["abn_dgr.parquet\nabn · has_dgr · dgr_endorsed_from"]
+    PANEL_P["ais_financials_panel.parquet\n211,895 rows · charity × year"]
+    T1_P["ato_individuals_table1.parquet\n41 rows"]
+    T3_P["ato_individuals_table3.parquet\n1,322 rows"]
+    CNT_P["ato_dgr_counts_by_type.parquet\n31 rows"]
+    ANC_P["ato_ancillary_funds_timeseries.parquet\n37 rows · PAF + PuAF"]
   end
 
   subgraph ANAL["④ data/analytical/   joined, model-ready   .parquet + .csv"]
     direction TB
-    MASTER["charity_master\n65,430 rows · 75 cols\nabn · has_dgr · dgr_endorsed_from\ntarget_category · confidence\ncharity_size · state · main_activity\n+ all ACNC register fields"]
-    FIN["charity_financials\n49,046 rows · 102 cols\nabn · ais_year · has_dgr · target_category\ntotal_revenue · donations_and_bequests\ngovernment_grants · total_expenses\n+ all AIS financial fields"]
-    GTS["gifts_timeseries\n41 rows · 5 cols\n1978-79 to 2022-23\nnational donors + gift totals"]
-    GIY["gifts_by_income_year\n1,322 rows · 10 cols\n2022-23 only\nsex x age x income band"]
-    ANC_A["ancillary_fund_stats\n97 rows · 6 cols\nPAF: $10.7B net assets\nPuAF: $4.7B net assets\n2000-01 to 2022-23"]
+    MASTER["charity_master\n65,430 rows · 74 cols\nabn · has_dgr · dgr_endorsed_from\nis_ancillary_provisional\n+ all ACNC register fields"]
+    SUBT["charity_target_subtypes\n1,860 rows · 1,745 charities\n4 campaign cohorts\nregister booleans + rules + manual"]
+    FIN["charity_financials_panel\n211,895 rows · 17 cols\nabn · ais_year · financial items"]
+    GTS["gifts_timeseries\n41 rows · 1978-79 to 2022-23"]
+    GIY["gifts_by_income_year\n1,322 rows · 2022-23"]
+    CNT["dgr_counts_by_type\n31 rows · endorsements by category"]
+    ANC_A["ancillary_funds_timeseries\n37 rows · 2000-01 to 2023-24\nFY2023-24 distributions: $1.53B"]
+  end
+
+  subgraph REFORM["⑤ Reform model"]
+    direction TB
+    GAP["dgr_gap_analysis\n198,141 rows · 28 cols\nLayer 2 handoff dataset"]
+    SCEN["reform_scenarios\n12 rows · 4 cohorts × 3 bases\nLayer 1 pool-access ranges"]
+    EXPO["dgr_incumbent_exposure\n15 rows · B2 losers analysis"]
+    VAL["validation_report\n22 PASS/FAIL checks"]
   end
 
   %% Source → Raw
   ACNC_W -->|"download_acnc_register()"| REG_R
   ACNC_W -->|"download_acnc_ais()"| AIS_R
+  ACNC_W -->|"download_acnc_ais_programs()"| PROG_R
   ATO_W  -->|"download_ato_table1()"| T1_R
   ATO_W  -->|"download_ato_table3()"| T3_R
-  ATO_W  -->|"download_ato_ancillary()"| ANC_R
+  ATO_W  -->|"download_ato_charities_table3()"| CT3_R
+  ATO_W  -->|"download_ato_charities_table4()"| CT4_R
 
   %% Raw → Processed
-  REG_R -->|"ingest_acnc_register()\njanitor::clean_names()"| REG_P
-  AIS_R -->|"ingest_acnc_ais()\njanitor::clean_names()"| AIS_P
-  T1_R  -->|"ingest_ato_table1()\npivot wide → long"| T1_P
-  T3_R  -->|"ingest_ato_table3()\nselect cols 1-5 + gift cols"| T3_P
-  ANC_R -->|"ingest_ato_ancillary()\nTable 4A + 4B combined"| ANC_P
+  REG_R -->|"ingest_acnc_register()"| REG_P
+  AIS_R -->|"ingest_ais_financials_panel()"| PANEL_P
+  LKP_MAP -->|"column mapping\nerrors if missing"| PANEL_P
+  T1_R  -->|"ingest_ato_table1()"| T1_P
+  T3_R  -->|"ingest_ato_table3()"| T3_P
+  CT3_R -->|"ingest_ato_charities_table3()"| CNT_P
+  CT4_R -->|"ingest_ato_charities_table4()\nTables 4A + 4B"| ANC_P
 
   %% ABR API lookup
-  REG_P -->|"ingest_abn_dgr()\n64,850 ABN lookups\n5 concurrent · ~20 min"| ABR_W
-  ABR_W -->|"27,623 DGR matches\nparsed from XML response"| DGR_P
+  REG_P -->|"ingest_abn_dgr()\n~65k ABN lookups"| ABR_W
+  ABR_W -->|"27,623 DGR matches"| DGR_P
 
   %% Processed → Analytical
   REG_P  -->|"LEFT JOIN on abn"| MASTER
   DGR_P  -->|"LEFT JOIN on abn"| MASTER
-  LKP    -->|"purpose col = Y\n+ keyword regex match\nfirst match wins"| MASTER
 
-  MASTER -->|"INNER JOIN on abn\n16,384 charities dropped\n(no AIS record)"| FIN
-  AIS_P  -->|"INNER JOIN on abn"| FIN
+  REG_P     -->|"purpose booleans"| SUBT
+  PROG_R    -->|"CLASSIE rules\nwhitelisted only"| SUBT
+  LKP_RULES --> SUBT
+  LKP_MAN   --> SUBT
 
-  T1_P  -->|"pass-through"| GTS
-  T3_P  -->|"pass-through"| GIY
-  ANC_P -->|"pass-through"| ANC_A
+  PANEL_P -->|"pass-through"| FIN
+  T1_P    -->|"pass-through"| GTS
+  T3_P    -->|"pass-through"| GIY
+  CNT_P   -->|"pass-through"| CNT
+  ANC_P   -->|"pass-through"| ANC_A
+
+  %% Analytical → Reform
+  MASTER -->|"INNER JOIN on abn\nancillary excluded"| GAP
+  FIN    --> GAP
+  SUBT   -->|"LEFT JOIN"| GAP
+
+  GAP   -->|"latest AIS year"| SCEN
+  ANC_A -->|"FY2023-24 pool"| SCEN
+  GAP   -->|"purpose-proxy markets"| EXPO
+
+  MASTER --> VAL
+  CNT    --> VAL
+  ANC_A  --> VAL
+  FIN    --> VAL
+  GAP    --> VAL
+  SCEN   --> VAL
+  EXPO   --> VAL
 
 </div>
 
@@ -144,7 +183,7 @@ flowchart LR
   <div class="legend-item"><div class="swatch" style="background:#e8f4fd;border:1.5px solid #4a90d9;"></div> External sources / lookups</div>
   <div class="legend-item"><div class="swatch" style="background:#fff8e6;border:1.5px solid #e6a817;"></div> Raw files (data/raw/)</div>
   <div class="legend-item"><div class="swatch" style="background:#f0faf0;border:1.5px solid #4caf50;"></div> Processed Parquet (data/processed/)</div>
-  <div class="legend-item"><div class="swatch" style="background:#fdf0f8;border:1.5px solid #c06;"></div> Analytical outputs (data/analytical/)</div>
+  <div class="legend-item"><div class="swatch" style="background:#fdf0f8;border:1.5px solid #c06;"></div> Analytical outputs &amp; reform model (data/analytical/)</div>
   <div class="legend-item" style="margin-left:16px;color:#888;">Arrow labels show R function name or join type &amp; key.</div>
 </div>
 </div>

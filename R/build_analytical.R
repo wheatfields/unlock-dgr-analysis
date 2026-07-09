@@ -5,12 +5,12 @@
 
 # ---- charity_master ---------------------------------------------------------
 
-#' One row per charity with DGR status and target category flags.
-build_charity_master <- function(register_path, dgr_path, mapping_path,
-                                 analytical_dir) {
+#' One row per charity with DGR status and a provisional ancillary-fund flag.
+#' Target subtype flags live in charity_target_subtypes (the single source of
+#' truth for campaign cohorts — see R/build_target_subtypes.R).
+build_charity_master <- function(register_path, dgr_path, analytical_dir) {
   register <- arrow::read_parquet(register_path)
   dgr      <- arrow::read_parquet(dgr_path)
-  mapping  <- readr::read_csv(mapping_path, show_col_types = FALSE)
 
   # Derive has_dgr from dgr_endorsed_from rather than the has_dgr column in
   # abn_dgr.parquet. The ABR XML uses <dgrEndorsement>/<dgrFund> (camelCase)
@@ -26,83 +26,35 @@ build_charity_master <- function(register_path, dgr_path, mapping_path,
     dplyr::left_join(dgr_current, by = "abn") |>
     dplyr::mutate(has_dgr = !is.na(has_dgr) & has_dgr)
 
-  master <- attach_target_subtype(master, mapping)
+  # Provisional ancillary-fund flag. Neither the ABR bulk extract nor the ABR
+  # API exposes DGR item numbers (see docs/abr_dgr_item_findings.md), so
+  # Item 2 ancillary funds cannot be identified structurally. Name matching on
+  # "ancillary" is the documented fallback; PAF naming guidelines mean most
+  # (but not all) ancillary funds carry the phrase in their legal name.
+  master <- master |>
+    dplyr::mutate(
+      is_ancillary_provisional = stringr::str_detect(
+        charity_legal_name,
+        stringr::regex("ancillary", ignore_case = TRUE)
+      ) %in% TRUE
+    )
+  cli::cli_alert_info(
+    "Provisional ancillary-fund flag: {sum(master$is_ancillary_provisional)} charities matched 'ancillary'"
+  )
 
   out <- file.path(analytical_dir, "charity_master.parquet")
   write_outputs(master, out)
 }
 
-#' Flag charities matching the campaign's four target categories.
-#'
-#' Matching strategy:
-#'   1. The relevant ACNC boolean purpose column must equal "Y".
-#'   2. If activity_keyword is non-empty, the charity's legal name must also
-#'      match the keyword pattern (case-insensitive regex, | for alternatives).
-#'      If activity_keyword is empty, the purpose column alone is sufficient.
-#'
-#' Purpose columns alone are too broad for some categories (e.g. advancing_health
-#' covers ~7k charities). Keywords narrow those. For specific columns like
-#' promoting_or_protecting_human_rights, no keyword is needed.
-#' Rows are processed in order; first match wins.
-attach_target_subtype <- function(master, mapping) {
-  # Maps human-readable acnc_subtype labels in the CSV to the actual column
-  # names produced by janitor::clean_names() on the ACNC register.
-  purpose_col_map <- c(
-    "advancing social or public welfare" =
-      "advancing_social_or_public_welfare",
-    "advancing health" =
-      "advancing_health",
-    "advancing the security or safety of australia or the australian public" =
-      "advancing_security_or_safety_of_australia_or_australian_public",
-    "promoting or protecting human rights" =
-      "promoting_or_protecting_human_rights"
-  )
+# ---- charity_financials_panel ------------------------------------------------
 
-  master$target_category <- NA_character_
-  master$confidence      <- NA_character_
-
-  for (i in seq_len(nrow(mapping))) {
-    purpose_col <- purpose_col_map[tolower(trimws(mapping$acnc_subtype[i]))]
-    if (is.na(purpose_col) || !purpose_col %in% names(master)) next
-
-    purpose_match <- !is.na(master[[purpose_col]]) & master[[purpose_col]] == "Y"
-
-    kw <- trimws(mapping$activity_keyword[i])
-    keyword_match <- if (is.na(kw) || nchar(kw) == 0) {
-      rep(TRUE, nrow(master))
-    } else {
-      stringr::str_detect(
-        master$charity_legal_name,
-        stringr::regex(kw, ignore_case = TRUE)
-      )
-    }
-
-    untagged <- is.na(master$target_category)
-
-    hits <- purpose_match & keyword_match & untagged
-    master$target_category[hits] <- mapping$target_category[i]
-    master$confidence[hits]      <- mapping$confidence[i]
-  }
-
-  n_tagged <- sum(!is.na(master$target_category))
-  cli::cli_alert_info("Target subtype mapping: {n_tagged} charities tagged")
-  master
-}
-
-# ---- charity_financials -----------------------------------------------------
-
-#' One row per charity-year with AIS financial items joined to master attributes.
-build_charity_financials <- function(charity_master_path, ais_path,
-                                     analytical_dir) {
-  master <- arrow::read_parquet(charity_master_path) |>
-    dplyr::select(abn, has_dgr, target_category, charity_size,
-                  dplyr::any_of(c("state", "main_activity")))
-  ais <- arrow::read_parquet(ais_path)
-
-  joined <- dplyr::inner_join(ais, master, by = "abn")
-
-  out <- file.path(analytical_dir, "charity_financials.parquet")
-  write_outputs(joined, out)
+#' Long harmonised AIS financials panel (abn x ais_year), passed through to
+#' the analytical layer. Column harmonisation is defined in
+#' lookups/ais_column_mapping.csv and enforced at ingestion.
+build_charity_financials_panel <- function(panel_path, analytical_dir) {
+  raw <- arrow::read_parquet(panel_path)
+  out <- file.path(analytical_dir, "charity_financials_panel.parquet")
+  write_outputs(raw, out)
 }
 
 # ---- gifts tables -----------------------------------------------------------
@@ -121,27 +73,21 @@ build_gifts_by_income_year <- function(ato_table3_path, analytical_dir) {
   write_outputs(raw, out)
 }
 
-# ---- ancillary fund stats ---------------------------------------------------
+# ---- ATO charities tables (2023-24 edition) ---------------------------------
 
-#' ATO ancillary fund statistics (PAF/PuAF), passed through to analytical layer.
-#'
-#' Supports the campaign argument that PAFs (~$11B) and PuAFs (~$5B) can only
-#' distribute to DGR charities — DGR reform directly expands the pool of
-#' eligible recipients for this capital.
-build_ancillary_fund_stats <- function(ato_ancillary_path, analytical_dir) {
-  raw <- arrow::read_parquet(ato_ancillary_path)
-  out <- file.path(analytical_dir, "ancillary_fund_stats.parquet")
+#' DGR endorsement counts by type (ATO charities Table 3), passed through to
+#' analytical layer. One row per DGR category with the edition stamp.
+build_dgr_counts_by_type <- function(ato_charities_table3_path, analytical_dir) {
+  raw <- arrow::read_parquet(ato_charities_table3_path)
+  out <- file.path(analytical_dir, "dgr_counts_by_type.parquet")
   write_outputs(raw, out)
 }
 
-# ---- build summary ----------------------------------------------------------
-
-summarise_build <- function(...) {
-  paths         <- c(...)
-  parquet_paths <- paths[grepl("\\.parquet$", paths)]
-  for (p in parquet_paths) {
-    df <- arrow::read_parquet(p, as_data_frame = FALSE)
-    cli::cli_alert_info("{.path {p}}: {nrow(df)} rows, {ncol(df)} cols")
-  }
-  invisible(paths)
+#' Ancillary funds time series (ATO charities Tables 4A/4B), passed through to
+#' analytical layer. One row per income_year x fund_type (PAF / PuAF).
+build_ancillary_funds_timeseries <- function(ato_charities_table4_path,
+                                             analytical_dir) {
+  raw <- arrow::read_parquet(ato_charities_table4_path)
+  out <- file.path(analytical_dir, "ancillary_funds_timeseries.parquet")
+  write_outputs(raw, out)
 }

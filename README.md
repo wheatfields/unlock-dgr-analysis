@@ -4,9 +4,10 @@ Analytical evidence base for Justice Connect's Unlock DGR campaign, built during
 
 ## What this repo contains
 
-- **Ingestion code** that downloads public data (ACNC Charity Register, ABN DGR list, ACNC AIS financials, ATO/QUT-ACPNS giving stats), cleans it, and writes versioned Parquet outputs.
+- **Ingestion code** that downloads public data (ACNC Charity Register, ABR DGR lookups, ACNC AIS financials 2021–2024, ATO taxation statistics), cleans it, and writes versioned Parquet outputs.
 - **A reproducible pipeline** (`targets`) so the entire build runs end-to-end with one command.
-- **Lookup tables** including the manual mapping of ACNC subtypes to the four campaign-target charity categories.
+- **Lookup tables** including the auditable rules file and manual mapping that define the four campaign-target cohorts.
+- **Reform model outputs** — two-layer DGR reform benefit model (pool-access scenarios, donations-gap handoff dataset, incumbent exposure).
 - **Methodology documentation** cross-referenced to the code that implements it.
 
 ## What this repo does NOT contain

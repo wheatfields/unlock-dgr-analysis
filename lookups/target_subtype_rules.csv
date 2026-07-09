@@ -1,0 +1,22 @@
+rule_id,subtype,rule_type,pattern,status,date_added,notes
+NH-NAME-01,neighbourhood_house,name_keyword,neighbourhood house|neighborhood house,whitelisted,9/07/2026,Charity legal name contains 'neighbourhood house' (either spelling). High precision in candidate scan.
+NH-NAME-02,neighbourhood_house,name_keyword,neighbourhood centre|neighborhood centre,whitelisted,9/07/2026,Charity legal name contains 'neighbourhood centre'. High precision in candidate scan.
+NH-NAME-03,neighbourhood_house,name_keyword,community house,whitelisted,9/07/2026,Charity legal name contains 'community house'. Review scan output — may catch residential/health facilities.
+DP-CLASSIE-01,disaster_preparedness,classie_classification,Disaster preparedness,whitelisted,9/07/2026,"CLASSIE program classification, exact match. Core preparedness activity."
+DP-CLASSIE-02,disaster_preparedness,classie_classification,Disasters and emergency management,whitelisted,9/07/2026,CLASSIE parent-level classification for disaster/emergency management programs.
+DP-CLASSIE-03,disaster_preparedness,classie_classification,Disaster relief,whitelisted,9/07/2026,Relief is response not preparedness — review whether in scope for the campaign definition.
+DP-CLASSIE-04,disaster_preparedness,classie_classification,Disaster recovery,whitelisted,9/07/2026,Recovery is post-event — review whether in scope.
+DP-CLASSIE-05,disaster_preparedness,classie_classification,Disasters,candidate,9/07/2026,Generic CLASSIE bucket; programs not further classified.
+DP-CLASSIE-06,disaster_preparedness,classie_classification,Search and rescue,candidate,9/07/2026,"Volunteer SAR organisations (marine rescue, alpine, etc.)."
+DP-CLASSIE-07,disaster_preparedness,classie_classification,Fire prevention and control,candidate,9/07/2026,Rural fire brigades and fire-prevention programs.
+DP-CLASSIE-08,disaster_preparedness,classie_classification,Bushfires,whitelisted,9/07/2026,Bushfire-specific programs (mostly relief/recovery after 2019-20 fires — review).
+DP-CLASSIE-09,disaster_preparedness,classie_classification,Floods,whitelisted,9/07/2026,Flood-specific programs (mostly relief after 2022 floods — review).
+DP-CLASSIE-10,disaster_preparedness,classie_classification,Non-natural disasters,candidate,9/07/2026,Small count; review individually.
+IP-CLASSIE-01,injury_prevention,classie_classification,Safety education,whitelisted,9/07/2026,Largest injury-prevention-relevant CLASSIE class (~140 programs/yr).
+IP-CLASSIE-02,injury_prevention,classie_classification,First aid training,whitelisted,9/07/2026,First aid training providers (St John etc.).
+IP-CLASSIE-03,injury_prevention,classie_classification,Motor vehicle safety,whitelisted,9/07/2026,Road safety programs.
+IP-CLASSIE-04,injury_prevention,classie_classification,Traffic safety,whitelisted,9/07/2026,Road/traffic safety programs.
+IP-CLASSIE-05,injury_prevention,classie_classification,Public safety,candidate,9/07/2026,Broad class — review member list for relevance.
+IP-CLASSIE-06,injury_prevention,classie_classification,Home safety,candidate,9/07/2026,Small count.
+IP-CLASSIE-07,injury_prevention,classie_classification,Pedestrian safety,candidate,9/07/2026,Small count.
+IP-CLASSIE-08,injury_prevention,classie_classification,Bicycle safety,candidate,9/07/2026,Small count.

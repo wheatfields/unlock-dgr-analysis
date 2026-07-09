@@ -35,9 +35,14 @@ list(
 
   tar_target(acnc_register_raw, download_acnc_register(paths$raw), format = "file"),
   tar_target(acnc_ais_raw,      download_acnc_ais(paths$raw),      format = "file"),
+  tar_target(acnc_ais_programs_raw, download_acnc_ais_programs(paths$raw),
+             format = "file"),
   tar_target(ato_table1_raw,      download_ato_table1(paths$raw),      format = "file"),
   tar_target(ato_table3_raw,      download_ato_table3(paths$raw),      format = "file"),
-  tar_target(ato_ancillary_raw,   download_ato_ancillary(paths$raw),   format = "file"),
+  tar_target(ato_charities_table3_raw, download_ato_charities_table3(paths$raw),
+             format = "file"),
+  tar_target(ato_charities_table4_raw, download_ato_charities_table4(paths$raw),
+             format = "file"),
 
   # ---- Per-source processing ------------------------------------------------
   # Each ingestion target reads the raw file, parses to a tidy table, and
@@ -51,14 +56,35 @@ list(
   tar_target(abn_dgr, ingest_abn_dgr(acnc_register, paths$processed),
              format = "file"),
 
-  tar_target(acnc_ais,   ingest_acnc_ais(acnc_ais_raw,     paths$processed), format = "file"),
+  # Harmonised multi-vintage AIS financials. Column selection is fully
+  # specified in lookups/ais_column_mapping.csv (one row per vintage-column);
+  # ingest aborts if a mapped column is missing from a vintage.
+  tar_target(ais_column_mapping,
+             file.path(paths$lookups, "ais_column_mapping.csv"),
+             format = "file"),
+  tar_target(ais_financials_panel_processed,
+             ingest_ais_financials_panel(acnc_ais_raw, ais_column_mapping,
+                                         paths$processed),
+             format = "file"),
+
   tar_target(ato_table1,    ingest_ato_table1(ato_table1_raw,       paths$processed), format = "file"),
   tar_target(ato_table3,    ingest_ato_table3(ato_table3_raw,       paths$processed), format = "file"),
-  tar_target(ato_ancillary, ingest_ato_ancillary(ato_ancillary_raw, paths$processed), format = "file"),
+  tar_target(ato_charities_table3,
+             ingest_ato_charities_table3(ato_charities_table3_raw, paths$processed),
+             format = "file"),
+  tar_target(ato_charities_table4,
+             ingest_ato_charities_table4(ato_charities_table4_raw, paths$processed),
+             format = "file"),
 
   # ---- Lookups --------------------------------------------------------------
-  tar_target(target_subtype_mapping,
-             file.path(paths$lookups, "target_subtype_mapping.csv"),
+  # Target subtype scaffolding: curated ABN list + auditable rules file.
+  # Only rules with status == "whitelisted" reach charity_target_subtypes;
+  # everything else only feeds the candidate CSVs for human review.
+  tar_target(target_subtypes_manual,
+             "data/mappings/target_subtypes.csv",
+             format = "file"),
+  tar_target(target_subtype_rules,
+             file.path(paths$lookups, "target_subtype_rules.csv"),
              format = "file"),
 
   # ---- Analytical layer -----------------------------------------------------
@@ -66,12 +92,12 @@ list(
   # and CSV. Parquet for DuckDB; CSV for Excel and other tools.
 
   tar_target(charity_master,
-             build_charity_master(acnc_register, abn_dgr, target_subtype_mapping,
-                                  paths$analytical),
+             build_charity_master(acnc_register, abn_dgr, paths$analytical),
              format = "file"),
 
-  tar_target(charity_financials,
-             build_charity_financials(charity_master, acnc_ais, paths$analytical),
+  tar_target(charity_financials_panel,
+             build_charity_financials_panel(ais_financials_panel_processed,
+                                            paths$analytical),
              format = "file"),
 
   tar_target(gifts_timeseries,
@@ -82,13 +108,57 @@ list(
              build_gifts_by_income_year(ato_table3, paths$analytical),
              format = "file"),
 
-  tar_target(ancillary_fund_stats,
-             build_ancillary_fund_stats(ato_ancillary, paths$analytical),
+  tar_target(dgr_counts_by_type,
+             build_dgr_counts_by_type(ato_charities_table3, paths$analytical),
              format = "file"),
 
-  # ---- Build report ---------------------------------------------------------
-  tar_target(build_summary,
-             summarise_build(charity_master, charity_financials,
-                             gifts_timeseries, gifts_by_income_year,
-                             ancillary_fund_stats))
+  tar_target(ancillary_funds_timeseries,
+             build_ancillary_funds_timeseries(ato_charities_table4, paths$analytical),
+             format = "file"),
+
+  # Diagnostic candidate CSVs for subtype review (analysis/subtype_candidates/).
+  tar_target(subtype_candidates,
+             report_subtype_candidates(acnc_ais_programs_raw, acnc_register,
+                                       target_subtype_rules),
+             format = "file"),
+
+  tar_target(charity_target_subtypes,
+             build_charity_target_subtypes(acnc_register, acnc_ais_programs_raw,
+                                           target_subtypes_manual,
+                                           target_subtype_rules,
+                                           paths$analytical),
+             format = "file"),
+
+  # ---- Reform analysis (two-layer model) ------------------------------------
+  # Layer 2 handoff dataset: charity-year financials + DGR status + subtype +
+  # strata variables, ancillary funds excluded. Input for the donations-gap
+  # analysis owned by another team member.
+  tar_target(dgr_gap_analysis,
+             build_dgr_gap_analysis(charity_master, charity_financials_panel,
+                                    charity_target_subtypes, paths$analytical),
+             format = "file"),
+
+  # Layer 1: scenario ranges for target-cohort access to the annual PAF/PuAF
+  # distribution pool (leakage-adjusted; access scenarios, not predicted flows).
+  tar_target(reform_scenarios,
+             build_reform_scenarios(dgr_gap_analysis,
+                                    ancillary_funds_timeseries,
+                                    paths$analytical),
+             format = "file"),
+
+  # B2: descriptive exposure of incumbent DGR charities competing in the same
+  # donor markets as the target cohorts.
+  tar_target(dgr_incumbent_exposure,
+             build_incumbent_exposure(dgr_gap_analysis, paths$analytical),
+             format = "file"),
+
+  # ---- Validation -----------------------------------------------------------
+  # Cross-checks outputs against published anchors (ATO ts24, ACNC AIS counts)
+  # and internal consistency rules. Returns a tibble of PASS/FAIL checks.
+  tar_target(validation_report,
+             validate_outputs(charity_master, dgr_counts_by_type,
+                              ancillary_funds_timeseries,
+                              charity_financials_panel,
+                              dgr_gap_analysis, reform_scenarios,
+                              dgr_incumbent_exposure))
 )

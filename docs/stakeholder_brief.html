@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unlock DGR — Data Sources &amp; Analytical Framework</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #f4f5f7;
+  color: #1a1a2e;
+  padding: 36px 44px 60px;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.header { margin-bottom: 36px; }
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+}
+.header .subtitle {
+  font-size: 13px;
+  color: #6c757d;
+}
+.header .campaign-tag {
+  display: inline-block;
+  background: #1a6fc4;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Section headings ── */
+h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e9ecef;
+}
+h2 .section-num {
+  display: inline-block;
+  background: #1a6fc4;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 22px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* ── Intro block ── */
+.intro {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+  padding: 22px 24px;
+  margin-bottom: 32px;
+  border-left: 4px solid #1a6fc4;
+  font-size: 14px;
+  color: #343a40;
+}
+
+/* ── Section wrapper ── */
+.section { margin-bottom: 36px; }
+
+/* ── Source cards ── */
+.source-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.source-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+  padding: 20px 22px;
+  border-top: 3px solid #4a90d9;
+}
+.source-card.ato { border-top-color: #2e7d32; }
+.source-card.abr { border-top-color: #e65100; }
+.source-card.ais { border-top-color: #7b1fa2; }
+.source-card h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  color: #1a1a2e;
+}
+.source-card .maintainer {
+  font-size: 11.5px;
+  color: #6c757d;
+  margin-bottom: 10px;
+}
+.source-card p { font-size: 13.5px; color: #343a40; }
+.source-card .stat-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.stat-chip {
+  background: #f4f5f7;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #495057;
+}
+.stat-chip strong { color: #1a1a2e; }
+
+/* ── Steps ── */
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+  padding: 18px 22px;
+  margin-bottom: 10px;
+}
+.step-num {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1a6fc4;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.step-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+.step-body p { font-size: 13.5px; color: #343a40; }
+
+/* ── Outputs table ── */
+.outputs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.outputs-table th {
+  background: #f8f9fa;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 16px;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+.outputs-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13.5px;
+  vertical-align: top;
+}
+.outputs-table tr:last-child td { border-bottom: none; }
+.outputs-table tr:hover td { background: #fafbfc; }
+.output-name { font-weight: 700; color: #1a1a2e; }
+.output-figures { font-size: 12.5px; color: #495057; margin-top: 3px; }
+
+/* ── Limitations ── */
+.limitations {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+  padding: 20px 24px;
+  border-left: 4px solid #f59f00;
+}
+.limitations ul {
+  list-style: none;
+  padding: 0;
+}
+.limitations ul li {
+  padding: 7px 0 7px 22px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13.5px;
+  color: #343a40;
+  position: relative;
+}
+.limitations ul li:last-child { border-bottom: none; }
+.limitations ul li::before {
+  content: "!";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 15px;
+  height: 15px;
+  background: #f59f00;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 15px;
+}
+
+/* ── Footer ── */
+.doc-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+  font-size: 12.5px;
+  color: #6c757d;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="campaign-tag">Unlock DGR — Actuarial Hackathon 2026</div>
+  <h1>Data Sources &amp; Analytical Framework</h1>
+  <div class="subtitle">A plain-language overview of the data assembled to support the Unlock DGR campaign — prepared for the 2026 Actuarial Hackathon</div>
+</div>
+
+<div class="intro">
+  The analytical team has assembled a linked dataset drawn from four entirely public sources — the ACNC charity register, the Australian Business Register, the ACNC Annual Information Statements, and ATO Taxation Statistics. This document explains what each source contains, how they were matched together, what the resulting outputs look like, and where the known limitations lie. It is intended for readers familiar with the charity sector who want to understand the evidence base before working with the data.
+</div>
+
+
+<!-- ══════════════════════════ 1. DATA SOURCES ══════════════════════════ -->
+<div class="section">
+<h2><span class="section-num">1</span>The Four Data Sources</h2>
+<div class="source-grid">
+
+  <div class="source-card">
+    <h3>ACNC Charity Register</h3>
+    <div class="maintainer">Maintained by the Australian Charities and Not-for-profits Commission (ACNC)</div>
+    <p>The official public register of every charity registered in Australia. It records each charity's legal name, ABN, registered address, size classification, financial year end, charitable purposes (e.g. advancing health, promoting human rights), and the beneficiary groups it serves. This is the foundation of the analysis — every other data source is matched back to it.</p>
+    <div class="stat-row">
+      <div class="stat-chip"><strong>65,430</strong> registered charities</div>
+      <div class="stat-chip">Updated continuously</div>
+      <div class="stat-chip">Extract: May 2026</div>
+    </div>
+  </div>
+
+  <div class="source-card abr">
+    <h3>Australian Business Register — DGR Status</h3>
+    <div class="maintainer">Maintained by the Australian Taxation Office (ATO)</div>
+    <p>The ABR records whether a charity holds current Deductible Gift Recipient endorsement, and from what date. There is no single downloadable list of all DGR charities, so we queried the register individually for each of the 65,430 charities using their ABN. This produced a definitive DGR yes/no flag and endorsement start date for every charity in the register.</p>
+    <div class="stat-row">
+      <div class="stat-chip"><strong>27,623</strong> DGR-endorsed (42%)</div>
+      <div class="stat-chip"><strong>37,807</strong> not DGR-endorsed (58%)</div>
+    </div>
+  </div>
+
+  <div class="source-card ais">
+    <h3>ACNC Annual Information Statements (AIS)</h3>
+    <div class="maintainer">Reported by charities to the ACNC; published annually</div>
+    <p>Each registered charity (other than basic religious charities) submits an Annual Information Statement to the ACNC. The financial section — covering income, donations received, government grants, expenses, assets, and liabilities — is the primary source for comparing the financial health and donation dependency of DGR versus non-DGR charities. Four reporting years (2021–2024) are combined into a harmonised multi-year panel. A companion programs dataset records what each charity actually does, classified against the CLASSIE taxonomy.</p>
+    <div class="stat-row">
+      <div class="stat-chip"><strong>211,895</strong> charity-year records</div>
+      <div class="stat-chip"><strong>59,197</strong> charities</div>
+      <div class="stat-chip">Reporting years: 2021–2024</div>
+    </div>
+  </div>
+
+  <div class="source-card ato">
+    <h3>ATO Taxation Statistics — Charitable Giving</h3>
+    <div class="maintainer">Published by the Australian Taxation Office, 2023-24 edition</div>
+    <p>Four statistical tables from the ATO's annual Taxation Statistics publication. The first provides 44 years of national data on tax-deductible gifts claimed by individuals (1978-79 to 2022-23). The second breaks 2022-23 giving down by donor age, sex, and income band — allowing analysis of who claims deductions and at what tax rate. The third counts DGR endorsements by category. The fourth covers Private Ancillary Funds (PAFs) and Public Ancillary Funds (PuAFs) annually from 2000-01 to 2023-24, including assets, inflows, and distributions to DGR recipients.</p>
+    <div class="stat-row">
+      <div class="stat-chip"><strong>$9.1B</strong> in gifts claimed 2022-23</div>
+      <div class="stat-chip"><strong>$13.3B</strong> PAF net assets (2023-24)</div>
+      <div class="stat-chip"><strong>$4.3B</strong> PuAF net assets (2023-24)</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════ 2. HOW IT WAS COMBINED ══════════════════════════ -->
+<div class="section">
+<h2><span class="section-num">2</span>How the Data Was Brought Together</h2>
+<div class="steps">
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h4>Started with the ACNC register as the foundation</h4>
+      <p>Every charity in Australia has a unique 11-digit Australian Business Number (ABN). This ABN is the common reference number that appears across all government databases — similar to how a tax file number links records across systems. The ACNC register provided the complete list of 65,430 charities; all subsequent data was matched to this list using the ABN.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h4>Confirmed DGR status for every charity via the ABR</h4>
+      <p>Using each charity's ABN, we queried the Australian Business Register to check current DGR endorsement status and the date from which it was effective. This lookup was performed individually for all 65,430 charities — there is no bulk download available. The result is a confirmed DGR yes/no and endorsement date for every charity in the register.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h4>Attached each charity's financial returns</h4>
+      <p>The ACNC Annual Information Statement data for reporting years 2021–2024 was matched to each charity using the ABN, adding income, expenses, and balance sheet figures — 211,895 charity-year records covering 59,197 of the 65,430 charities. Charities with no financial data are typically very small (under $250k in revenue and exempt from financial reporting), newly registered, or basic religious charities with reduced reporting obligations.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h4>Identified the four campaign target charity types</h4>
+      <p>Charities were assigned to Justice Connect's four campaign priority cohorts using three complementary evidence sources: the charity's ACNC-declared purposes, its program-level CLASSIE activity classifications from the AIS, and a small set of human-reviewed name rules. Every rule is recorded in an auditable rules file, and only whitelisted rules contribute to the final cohorts. The four cohorts (frozen July 2026) are: neighbourhood houses (312), human rights charities (851), injury prevention charities (237), and disaster preparedness charities (387) — 1,745 distinct charities. These supersede the earlier purpose-plus-name-keyword counts (259 / 847 / 86 / 79), which undercounted because program-level activity data was not yet in use.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════ 3. OUTPUTS ══════════════════════════ -->
+<div class="section">
+<h2><span class="section-num">3</span>The Analytical Outputs</h2>
+<table class="outputs-table">
+<thead>
+  <tr>
+    <th style="width:200px">Output</th>
+    <th>What it contains</th>
+    <th style="width:200px">Key figures</th>
+    <th style="width:220px">What questions it enables</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>
+      <div class="output-name">Charity master list</div>
+    </td>
+    <td>One record per registered charity, combining ACNC register details, confirmed DGR status, DGR endorsement date, size, state, declared charitable purposes, and beneficiary groups. Campaign cohort membership is kept in a separate target-subtypes output.</td>
+    <td>
+      <div class="output-figures">65,430 charities total</div>
+      <div class="output-figures">27,623 DGR-endorsed (42%)</div>
+      <div class="output-figures">37,807 not DGR-endorsed (58%)</div>
+      <div class="output-figures">1,745 charities tagged across 4 campaign cohorts</div>
+    </td>
+    <td>Who is currently excluded from DGR? How many? What types? Which states? What purposes do they serve?</td>
+  </tr>
+  <tr>
+    <td>
+      <div class="output-name">Charity financials panel</div>
+    </td>
+    <td>The ACNC financial returns for 2021–2024 matched by ABN into a harmonised multi-year panel. Covers income by type (government grants, donations, service fees, investment returns), expenses, and balance sheet.</td>
+    <td>
+      <div class="output-figures">211,895 charity-year records</div>
+      <div class="output-figures">59,197 charities</div>
+      <div class="output-figures">Reporting years 2021–2024</div>
+    </td>
+    <td>How do DGR and non-DGR charities compare on donations received? What is the financial sustainability gap? How dependent are target category charities on government grants vs. donations?</td>
+  </tr>
+  <tr>
+    <td>
+      <div class="output-name">National giving time series</div>
+    </td>
+    <td>44 years of aggregate data on tax-deductible charitable giving by Australian individuals, from 1978-79 to 2022-23. Includes the total dollar value of gifts claimed and the number of donors each year.</td>
+    <td>
+      <div class="output-figures">41 annual data points</div>
+      <div class="output-figures">1978-79 to 2022-23</div>
+      <div class="output-figures">$9.1B claimed in 2022-23</div>
+    </td>
+    <td>What has the long-run trend in charitable giving looked like? What is the macro baseline against which reform impacts would be measured?</td>
+  </tr>
+  <tr>
+    <td>
+      <div class="output-name">Giving by donor profile</div>
+    </td>
+    <td>Individual gift deduction claims for 2022-23, broken down by donor age group, sex, taxable income band, and tax bracket. Allows analysis of which types of donors give the most, and what the tax expenditure cost is at each income level.</td>
+    <td>
+      <div class="output-figures">1,322 demographic segments</div>
+      <div class="output-figures">2022-23 only</div>
+      <div class="output-figures">28 income bands, 13 age groups</div>
+    </td>
+    <td>What is the distribution of giving across income levels? What is the tax expenditure per dollar of donation by income group? Who are the marginal donors most likely to respond to expanded DGR access?</td>
+  </tr>
+  <tr>
+    <td>
+      <div class="output-name">Ancillary fund statistics</div>
+    </td>
+    <td>Annual statistics on Private Ancillary Funds (PAFs) and Public Ancillary Funds (PuAFs) from 2000-01 to 2023-24. Covers total funds operating, assets held, donations received into funds, and distributions made to DGR recipients each year.</td>
+    <td>
+      <div class="output-figures">PAF net assets: $13.3B (2023-24)</div>
+      <div class="output-figures">PuAF net assets: $4.3B (2023-24)</div>
+      <div class="output-figures">Combined distributions: $1.53B in 2023-24</div>
+      <div class="output-figures">2,289 PAFs · 1,425 PuAFs operating</div>
+    </td>
+    <td>How much philanthropic capital is structurally locked from non-DGR charities right now? How has this pool grown over time? What share of annual distributions might be redirected if the eligible recipient pool expanded?</td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+
+<!-- ══════════════════════════ 4. LIMITATIONS ══════════════════════════ -->
+<div class="section">
+<h2><span class="section-num">4</span>Known Limitations</h2>
+<div class="limitations">
+<ul>
+  <li>The four campaign cohort counts rely on charities' self-declared ACNC purposes and self-classified program activities; organisations doing this work under broader classifications may still be missed, and a small number of rules-based matches may be false positives. The rules file is auditable and human-reviewed.</li>
+  <li>Financial data in the Annual Information Statements is self-reported by charities and not independently audited at that level. Smaller charities (under $250k in revenue) report less financial detail, so comparisons across size bands require care.</li>
+  <li>The AIS financial panel covers reporting years 2021–2024. Column definitions are harmonised across vintages via an explicit mapping, but reporting practice can still vary year to year.</li>
+  <li>The state field in the ACNC register has minor formatting inconsistencies in the source data. State-level breakdowns should be treated as approximate pending normalisation.</li>
+  <li>The ATO giving statistics capture only tax-deductible donations claimed by individual taxpayers in their returns. They do not include donations not claimed as deductions, corporate charitable giving, or bequests processed outside the tax system — so total philanthropic giving to the sector is higher than these figures suggest.</li>
+  <li>DGR status reflects endorsement as at the time of the ABR lookup (May 2026). Charities that gained or lost DGR status recently may not reflect their status during the financial years covered by the AIS data.</li>
+</ul>
+</div>
+</div>
+
+
+<div class="doc-footer">
+  This analysis draws entirely on public sources. Full technical documentation — including data source URLs, processing steps, and field-level definitions for every variable — is available in the project's <strong>data dictionary</strong> and <strong>pipeline map</strong> documents.
+  <br><br>
+  Sources: ACNC Charity Register (data.gov.au); Australian Business Register ABN Lookup API (abr.business.gov.au); ACNC Annual Information Statements 2021–2024 (data.gov.au); ATO Taxation Statistics 2023-24 (data.gov.au). All data retrieved May 2026.
+</div>
+
+</body>
+</html>

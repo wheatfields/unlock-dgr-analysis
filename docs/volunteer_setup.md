@@ -35,7 +35,10 @@ for (f in list.files(DATA_DIR, pattern = "\\.parquet$", full.names = TRUE)) {
 }
 
 dbListTables(con)
-# [1] "charity_master" "charity_financials" "giving_aggregates"
+#  [1] "ancillary_funds_timeseries" "charity_financials_panel" "charity_master"
+#  [4] "charity_target_subtypes" "dgr_counts_by_type" "dgr_gap_analysis"
+#  [7] "dgr_incumbent_exposure" "gifts_by_income_year" "gifts_timeseries"
+# [10] "reform_scenarios"
 ```
 
 ## Query the data
@@ -64,9 +67,12 @@ DuckDB is fast — you can query the full ACNC register joined to AIS in a fract
 
 See `data_dictionary.md` in the same SharePoint folder. Quick orientation:
 
-- **`charity_master`** — one row per registered charity. Columns include ABN, charity name, size, state, ACNC subtype, DGR status flag, and the campaign target category (neighbourhood houses / injury prevention / disaster preparedness / human rights promotion) where applicable.
-- **`charity_financials`** — one row per charity-year, with AIS financial items joined to charity attributes.
-- **`giving_aggregates`** — ATO/ACPNS aggregate giving series (not per charity).
+- **`charity_master`** — one row per registered charity. Columns include ABN, legal name, size, state, declared purposes and beneficiaries, and DGR status flag.
+- **`charity_target_subtypes`** — one row per charity × campaign cohort (neighbourhood houses / injury prevention / disaster preparedness / human rights), with the evidence source for each match.
+- **`charity_financials_panel`** — one row per charity-year (2021–2024), harmonised AIS financial items.
+- **`dgr_gap_analysis`** — analysis-ready charity-year dataset: financials + DGR status + subtype + strata variables. Start here for DGR vs non-DGR comparisons.
+- **`reform_scenarios`**, **`dgr_incumbent_exposure`** — reform model outputs (Layer 1 pool-access ranges; incumbent exposure).
+- **`gifts_timeseries`**, **`gifts_by_income_year`**, **`ancillary_funds_timeseries`**, **`dgr_counts_by_type`** — ATO aggregate series (not per charity).
 
 ## Working conventions
 

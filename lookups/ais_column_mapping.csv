@@ -1,0 +1,61 @@
+ais_year,raw_column,harmonised_column,notes
+2021,abn,abn,key; verified 2026-07-09 against datadotgov_ais21.csv header
+2021,donations and bequests,donations_and_bequests,verified 2026-07-09
+2021,revenue from government,revenue_from_government,verified 2026-07-09
+2021,revenue from goods and services,revenue_from_goods_and_services,verified 2026-07-09
+2021,revenue from investments,revenue_from_investments,verified 2026-07-09
+2021,all other revenue,all_other_revenue,verified 2026-07-09
+2021,total revenue,total_revenue,verified 2026-07-09
+2021,other income,other_income,verified 2026-07-09
+2021,total gross income,total_gross_income,verified 2026-07-09
+2021,grants and donations made for use in Australia,grants_donations_in_australia,verified 2026-07-09
+2021,grants and donations made for use outside Australia,grants_donations_outside_australia,verified 2026-07-09
+2021,total expenses,total_expenses,verified 2026-07-09
+2021,total assets,total_assets,verified 2026-07-09
+2021,total liabilities,total_liabilities,verified 2026-07-09
+2021,net assets/liabilities,net_assets,verified 2026-07-09
+2022,abn,abn,key; verified 2026-07-09 against datadotgov_ais22.csv header
+2022,donations and bequests,donations_and_bequests,verified 2026-07-09
+2022,revenue from government,revenue_from_government,verified 2026-07-09
+2022,revenue from goods and services,revenue_from_goods_and_services,verified 2026-07-09
+2022,revenue from investments,revenue_from_investments,verified 2026-07-09
+2022,all other revenue,all_other_revenue,verified 2026-07-09
+2022,total revenue,total_revenue,verified 2026-07-09
+2022,other income,other_income,verified 2026-07-09
+2022,total gross income,total_gross_income,verified 2026-07-09
+2022,grants and donations made for use in Australia,grants_donations_in_australia,verified 2026-07-09
+2022,grants and donations made for use outside Australia,grants_donations_outside_australia,verified 2026-07-09
+2022,total expenses,total_expenses,verified 2026-07-09
+2022,total assets,total_assets,verified 2026-07-09
+2022,total liabilities,total_liabilities,verified 2026-07-09
+2022,net assets/liabilities,net_assets,verified 2026-07-09
+2023,abn,abn,key; verified 2026-07-09 against datadotgov_ais23.csv header
+2023,donations and bequests,donations_and_bequests,verified 2026-07-09
+2023,revenue from government,revenue_from_government,verified 2026-07-09
+2023,revenue from goods and services,revenue_from_goods_and_services,verified 2026-07-09
+2023,revenue from investments,revenue_from_investments,verified 2026-07-09
+2023,all other revenue,all_other_revenue,verified 2026-07-09
+2023,total revenue,total_revenue,verified 2026-07-09
+2023,other income,other_income,verified 2026-07-09
+2023,total gross income,total_gross_income,verified 2026-07-09
+2023,grants and donations made for use in Australia,grants_donations_in_australia,verified 2026-07-09
+2023,grants and donations made for use outside Australia,grants_donations_outside_australia,verified 2026-07-09
+2023,total expenses,total_expenses,verified 2026-07-09
+2023,total assets,total_assets,verified 2026-07-09
+2023,total liabilities,total_liabilities,verified 2026-07-09
+2023,net assets/liabilities,net_assets,verified 2026-07-09
+2024,abn,abn,key; verified 2026-07-09 against datadotgov_ais24.csv header
+2024,donations and bequests,donations_and_bequests,verified 2026-07-09
+2024,revenue from government,revenue_from_government,verified 2026-07-09
+2024,revenue from goods and services,revenue_from_goods_and_services,verified 2026-07-09
+2024,revenue from investments,revenue_from_investments,verified 2026-07-09
+2024,all other revenue,all_other_revenue,verified 2026-07-09
+2024,total revenue,total_revenue,verified 2026-07-09
+2024,other income,other_income,verified 2026-07-09
+2024,total gross income,total_gross_income,verified 2026-07-09
+2024,grants and donations made for use in Australia,grants_donations_in_australia,verified 2026-07-09
+2024,grants and donations made for use outside Australia,grants_donations_outside_australia,verified 2026-07-09
+2024,total expenses,total_expenses,verified 2026-07-09
+2024,total assets,total_assets,verified 2026-07-09
+2024,total liabilities,total_liabilities,verified 2026-07-09
+2024,net assets/liabilities,net_assets,verified 2026-07-09
