@@ -44,6 +44,16 @@ list(
   tar_target(ato_charities_table4_raw, download_ato_charities_table4(paths$raw),
              format = "file"),
 
+  # DGR Listing fixed-width files from ABN Lookup. Carry DGR item numbers
+  # (Item 1 = doing DGRs, Item 2 = ancillary funds) — not available in the
+  # bulk XML or API. Download skips gracefully if ABR is unreachable.
+  tar_target(dgr_listing_entities_raw,
+             download_dgr_listing_entities(paths$raw),
+             format = "file"),
+  tar_target(dgr_listing_funds_raw,
+             download_dgr_listing_funds(paths$raw),
+             format = "file"),
+
   # ---- Per-source processing ------------------------------------------------
   # Each ingestion target reads the raw file, parses to a tidy table, and
   # writes a Parquet to data/processed/.
@@ -76,6 +86,11 @@ list(
              ingest_ato_charities_table4(ato_charities_table4_raw, paths$processed),
              format = "file"),
 
+  tar_target(dgr_listing,
+             ingest_dgr_listing(dgr_listing_entities_raw, dgr_listing_funds_raw,
+                                paths$processed),
+             format = "file"),
+
   # ---- Lookups --------------------------------------------------------------
   # Target subtype scaffolding: curated ABN list + auditable rules file.
   # Only rules with status == "whitelisted" reach charity_target_subtypes;
@@ -92,7 +107,8 @@ list(
   # and CSV. Parquet for DuckDB; CSV for Excel and other tools.
 
   tar_target(charity_master,
-             build_charity_master(acnc_register, abn_dgr, paths$analytical),
+             build_charity_master(acnc_register, abn_dgr, dgr_listing,
+                                  paths$analytical),
              format = "file"),
 
   tar_target(charity_financials_panel,

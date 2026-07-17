@@ -28,15 +28,28 @@ SUBTYPE_PURPOSE_PROXY <- c(
 #'
 #' One row per charity x AIS year: harmonised financials joined to DGR status,
 #' size, state, target subtype(s), and the purpose booleans needed to build
-#' size x sector strata. Charities flagged as provisional ancillary funds are
-#' excluded — they are grant-makers, not donation-seekers, and would
-#' contaminate a donations-gap comparison.
+#' size x sector strata. Charities flagged as ancillary funds are excluded —
+#' they are grant-makers, not donation-seekers, and would contaminate a
+#' donations-gap comparison.
+#'
+#' Exclusion rule: exclude if `is_ancillary | is_ancillary_provisional`.
+#' This uses the definitive DGR listing Item 2 flag where available, with the
+#' provisional name-match as a safety net for rows not matched in the listing
+#' (e.g. charities whose ABNs are withheld from the ACNC register, or very
+#' recently endorsed funds not yet in the listing snapshot). When the DGR
+#' listing was unavailable at build time, `is_ancillary` is NA and the
+#' provisional flag alone drives the exclusion.
 build_dgr_gap_analysis <- function(charity_master_path, panel_path,
                                    subtypes_path, analytical_dir) {
   pq <- function(paths) paths[grepl("\\.parquet$", paths)][1]
 
   master <- arrow::read_parquet(pq(charity_master_path)) |>
-    dplyr::filter(!is.na(abn), !is_ancillary_provisional) |>
+    dplyr::filter(
+      !is.na(abn),
+      # Exclude definitive ancillary (Item 2 from DGR listing) OR provisional
+      # (name-match on "ancillary") — belt-and-suspenders exclusion.
+      !(dplyr::coalesce(is_ancillary, FALSE) | is_ancillary_provisional)
+    ) |>
     dplyr::distinct(abn, .keep_all = TRUE) |>
     dplyr::select(abn, charity_legal_name, charity_size, state,
                   has_dgr, dgr_endorsed_from,

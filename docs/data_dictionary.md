@@ -23,10 +23,13 @@ One row per ACNC-registered charity (65,430 rows). ACNC register fields joined t
 | *beneficiary booleans* (`youth`, `females`, `victims_of_disasters`, ...) | string (Y/blank) | ACNC register | Declared beneficiary groups |
 | `has_dgr` | bool | ABR API | TRUE if currently DGR-endorsed (derived from `dgr_endorsed_from`) |
 | `dgr_endorsed_from` | string | ABR API | Date DGR endorsement took effect |
-| `is_ancillary_provisional` | bool | Pipeline | Name-match flag on "ancillary" — provisional; see docs/abr_dgr_item_findings.md |
+| `dgr_item_number` | integer | ABR DGR Listing | DGR item number from the ABN Lookup DGR Listing entities file (1 = doing DGR, 2 = ancillary fund, 4 = overseas aid fund). NA if ABN not found in the listing (withheld ABN or listing unavailable). |
+| `is_ancillary` | bool | ABR DGR Listing | TRUE where `dgr_item_number == 2` (definitive flag; NA when listing unavailable — see docs/abr_dgr_item_findings.md) |
+| `has_item1_fund` | bool | ABR DGR Listing | TRUE where the charity operates a DGR-endorsed fund (appears in the funds/authorities/institutions file) |
+| `is_ancillary_provisional` | bool | Pipeline | Name-match flag on "ancillary" — provisional fallback; see docs/abr_dgr_item_findings.md |
 | `ingestion_date`, `source_file` | date/string | Pipeline | Provenance |
 
-Note: DGR **item numbers** (Item 1 vs Item 2) are not available in any bulk ABR product — see docs/abr_dgr_item_findings.md. Campaign target cohorts are **not** in this table; use `charity_target_subtypes`.
+Note: DGR **item numbers** are now ingested from the ABN Lookup DGR Listing files — see docs/abr_dgr_item_findings.md. Campaign target cohorts are **not** in this table; use `charity_target_subtypes`.
 
 ---
 

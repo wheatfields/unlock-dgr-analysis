@@ -5,10 +5,11 @@
 
 # ---- charity_master ---------------------------------------------------------
 
-#' One row per charity with DGR status and a provisional ancillary-fund flag.
+#' One row per charity with DGR status and ancillary-fund flags.
 #' Target subtype flags live in charity_target_subtypes (the single source of
 #' truth for campaign cohorts — see R/build_target_subtypes.R).
-build_charity_master <- function(register_path, dgr_path, analytical_dir) {
+build_charity_master <- function(register_path, dgr_path, dgr_listing_path,
+                                 analytical_dir) {
   register <- arrow::read_parquet(register_path)
   dgr      <- arrow::read_parquet(dgr_path)
 
@@ -28,9 +29,10 @@ build_charity_master <- function(register_path, dgr_path, analytical_dir) {
 
   # Provisional ancillary-fund flag. Neither the ABR bulk extract nor the ABR
   # API exposes DGR item numbers (see docs/abr_dgr_item_findings.md), so
-  # Item 2 ancillary funds cannot be identified structurally. Name matching on
-  # "ancillary" is the documented fallback; PAF naming guidelines mean most
-  # (but not all) ancillary funds carry the phrase in their legal name.
+  # Item 2 ancillary funds cannot be identified structurally via those sources.
+  # Name matching on "ancillary" is the documented fallback; PAF naming
+  # guidelines mean most (but not all) ancillary funds carry the phrase in
+  # their legal name.
   master <- master |>
     dplyr::mutate(
       is_ancillary_provisional = stringr::str_detect(
@@ -41,6 +43,60 @@ build_charity_master <- function(register_path, dgr_path, analytical_dir) {
   cli::cli_alert_info(
     "Provisional ancillary-fund flag: {sum(master$is_ancillary_provisional)} charities matched 'ancillary'"
   )
+
+  # Definitive ancillary-fund flag from the ABN Lookup DGR Listing files.
+  # Item 2 in the entities file identifies ancillary funds (PAF/PuAF).
+  # has_item1_fund = TRUE where the ABN appears as a fund-level (not entity-
+  # level) record — i.e. it operates a DGR-endorsed fund (always Item 1 class).
+  dgr_listing <- arrow::read_parquet(dgr_listing_path)
+
+  if (nrow(dgr_listing) > 0) {
+    # Entity-level item numbers (one row per ABN; take the first if duplicated)
+    listing_entity <- dgr_listing |>
+      dplyr::filter(record_level == "entity", !is.na(abn)) |>
+      dplyr::distinct(abn, .keep_all = TRUE) |>
+      dplyr::select(abn, dgr_item_number)
+
+    # Fund-level presence: does this ABN appear as a fund operator?
+    listing_fund_abns <- dgr_listing |>
+      dplyr::filter(record_level == "fund", !is.na(abn)) |>
+      dplyr::distinct(abn) |>
+      dplyr::mutate(has_item1_fund = TRUE)
+
+    master <- master |>
+      dplyr::left_join(listing_entity,     by = "abn") |>
+      dplyr::left_join(listing_fund_abns,  by = "abn") |>
+      dplyr::mutate(
+        has_item1_fund = !is.na(has_item1_fund) & has_item1_fund,
+        is_ancillary   = !is.na(dgr_item_number) & dgr_item_number == 2L
+      )
+
+    # Log comparison between definitive and provisional flags
+    n_def   <- sum(master$is_ancillary)
+    n_prov  <- sum(master$is_ancillary_provisional)
+    n_agree <- sum(master$is_ancillary & master$is_ancillary_provisional)
+    n_def_only  <- sum(master$is_ancillary & !master$is_ancillary_provisional)
+    n_prov_only <- sum(!master$is_ancillary & master$is_ancillary_provisional)
+    cli::cli_alert_info(paste0(
+      "Ancillary flag comparison — definitive (Item 2): ", n_def,
+      ", provisional (name match): ", n_prov,
+      ", agree: ", n_agree,
+      ", definitive-only (missed by name): ", n_def_only,
+      ", provisional-only (name match, not in listing): ", n_prov_only
+    ))
+  } else {
+    # DGR listing unavailable — populate columns with NA/FALSE so downstream
+    # code always sees the same schema; provisional flag is the safety net.
+    cli::cli_alert_warning(
+      "DGR listing is empty; is_ancillary will be NA (falling back to is_ancillary_provisional)."
+    )
+    master <- master |>
+      dplyr::mutate(
+        dgr_item_number = NA_integer_,
+        has_item1_fund  = FALSE,
+        is_ancillary    = NA
+      )
+  }
 
   out <- file.path(analytical_dir, "charity_master.parquet")
   write_outputs(master, out)
