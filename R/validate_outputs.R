@@ -54,6 +54,32 @@ validate_outputs <- function(charity_master_path, dgr_counts_path,
         sum(master$is_ancillary_provisional) < 1000,
       "Name match on 'ancillary'; see docs/abr_dgr_item_findings.md")
 
+  # Definitive ancillary flag from DGR listing (is NA when listing unavailable)
+  if ("is_ancillary" %in% names(master) && any(!is.na(master$is_ancillary))) {
+    n_ancillary <- sum(master$is_ancillary, na.rm = TRUE)
+    add("charity_master: definitive ancillary flag (is_ancillary)",
+        n_ancillary, "> 500 and < 5,000",
+        n_ancillary > 500 && n_ancillary < 5000,
+        paste0(
+          "Item 2 from DGR listing; ~3,600 PAF+PuAF total (ATO ts24). ",
+          "Only ACNC-registered, ABN-disclosed funds join — wide bound expected."
+        ))
+
+    known_items <- c(1L, 2L, 4L)
+    unknown_items <- unique(master$dgr_item_number[
+      !is.na(master$dgr_item_number) & !(master$dgr_item_number %in% known_items)
+    ])
+    add("charity_master: dgr_item_number values in known set (1, 2, 4)",
+        if (length(unknown_items) == 0) "all known" else paste(unknown_items, collapse = ", "),
+        "no unknown values",
+        length(unknown_items) == 0,
+        "Known DGR item numbers: 1 (doing DGR), 2 (ancillary fund), 4 (overseas aid)")
+  } else {
+    cli::cli_alert_info(
+      "DGR listing not available; skipping is_ancillary and dgr_item_number checks."
+    )
+  }
+
   # ---- dgr_counts_by_type vs ATO Table 3 -----------------------------------
   # Anchor: ATO Taxation Statistics 2023-24 charities Table 3 total DGR
   # endorsements. The ingest checksums categories against the Total row, so
@@ -113,10 +139,16 @@ validate_outputs <- function(charity_master_path, dgr_counts_path,
       all(dup_by_year$dups <= 2))
 
   # ---- dgr_gap_analysis (Layer 2 handoff) ----------------------------------
+  # Check that ancillary funds (both definitive and provisional) are excluded.
+  n_ancillary_in_gap <- sum(
+    gap$abn %in% master$abn[
+      dplyr::coalesce(master$is_ancillary, FALSE) | master$is_ancillary_provisional
+    ]
+  )
   add("gap_analysis: no ancillary funds included",
-      sum(gap$abn %in% master$abn[master$is_ancillary_provisional]),
+      n_ancillary_in_gap,
       "0 rows",
-      sum(gap$abn %in% master$abn[master$is_ancillary_provisional]) == 0)
+      n_ancillary_in_gap == 0)
   dd_bad <- sum(!is.na(gap$donation_dependence) &
                   (gap$donation_dependence < 0 | gap$donation_dependence > 1.5))
   add("gap_analysis: donation_dependence in plausible range",

@@ -16,6 +16,7 @@ This document records every analytical decision and cross-references it to the c
 |---|---|---|---|
 | ACNC Charity Register | `R/ingest_acnc_register.R` | Monthly | Primary classification |
 | ABR API DGR lookups | `R/ingest_abn_dgr.R` | On demand | DGR endorsement status per ABN (no item numbers — see docs/abr_dgr_item_findings.md) |
+| ABR DGR Listing files | `R/ingest_dgr_listing.R` | On demand | Fixed-width files from https://abr.business.gov.au/Tools/DgrListing; include DGR item numbers (definitive ancillary classification) |
 | ACNC AIS financial data (2021–2024) | `R/ingest_acnc_ais.R` | Annual | Harmonised via `lookups/ais_column_mapping.csv` |
 | ACNC AIS program classifications (CLASSIE) | `R/build_target_subtypes.R` | Annual | Drives target-cohort rules |
 | ATO taxation statistics — gifts | `R/ingest_ato_stats.R` | Annual | Aggregate giving series |
@@ -26,12 +27,14 @@ Most-recent versions used: see `data/raw/<source>/` filenames (date-stamped).
 ## Analytical layer
 
 ### `charity_master`
-Built by `build_charity_master()` in `R/build_analytical.R`. One row per registered charity. Joins ACNC register to currently-endorsed DGR status from the ABR API, and adds the provisional ancillary-fund name flag. Campaign target cohorts live in `charity_target_subtypes` (single source of truth), not here.
+Built by `build_charity_master()` in `R/build_analytical.R`. One row per registered charity. Joins ACNC register to currently-endorsed DGR status from the ABR API, and adds ancillary-fund flags. Campaign target cohorts live in `charity_target_subtypes` (single source of truth), not here.
 
 **Key decisions:**
 
 - *Definition of "currently endorsed":* an ABN has DGR status if the ABR lookup returned a non-missing `dgr_endorsed_from` date.
-- *Ancillary flag:* `is_ancillary_provisional` is a case-insensitive name match on "ancillary" (294 charities). Undercounts funds whose names omit the word; ~580 register rows with ACNC-withheld ABNs are mostly private ancillary funds and cannot be flagged or joined.
+- *Definitive ancillary flag (`is_ancillary`):* `dgr_item_number == 2` from the ABN Lookup DGR Listing entities file (`R/ingest_dgr_listing.R`). Item 2 identifies ancillary funds (PAF/PuAF) definitively. This flag is NA when the listing was unavailable at build time.
+- *Provisional ancillary flag (`is_ancillary_provisional`):* case-insensitive name match on "ancillary" (retained for comparison and as a safety net for charities not matched in the listing, e.g. those with ACNC-withheld ABNs). ~580 register rows with withheld ABNs are mostly private ancillary funds and cannot be joined to the listing.
+- `has_item1_fund` — TRUE where the charity appears in the DGR funds/authorities/institutions file (operates a DGR-endorsed fund, always Item 1 class).
 
 ### `charity_financials_panel`
 Built by `build_charity_financials_panel()`. One row per charity × AIS year (2021–2024), harmonised through the explicit column mapping in `lookups/ais_column_mapping.csv` — ingestion errors loudly if a mapped column is missing from a vintage.
@@ -54,7 +57,7 @@ Every build cross-checks 22 assertions against published anchors (ATO Taxation S
 
 ## The multiplier estimate
 
-The Productivity Commission's $1.50-per-$1 figure is **cited, not re-derived**. A true counterfactual replication is not feasible from public data (no before/after dataset tracks charities through DGR endorsement). Instead, the donations-gap analysis (below) provides a cross-sectional plausibility check: whether the observed DGR vs non-DGR donation difference, within size × sector strata, is directionally consistent with the PC's modelling. Input dataset: `dgr_gap_analysis` (built by `build_dgr_gap_analysis()` in `R/build_reform_analysis.R`) — one row per charity × AIS year with harmonised financials, DGR status, target subtype, and strata variables. Charities flagged `is_ancillary_provisional` are excluded (grant-makers, not donation-seekers).
+The Productivity Commission's $1.50-per-$1 figure is **cited, not re-derived**. A true counterfactual replication is not feasible from public data (no before/after dataset tracks charities through DGR endorsement). Instead, the donations-gap analysis (below) provides a cross-sectional plausibility check: whether the observed DGR vs non-DGR donation difference, within size × sector strata, is directionally consistent with the PC's modelling. Input dataset: `dgr_gap_analysis` (built by `build_dgr_gap_analysis()` in `R/build_reform_analysis.R`) — one row per charity × AIS year with harmonised financials, DGR status, target subtype, and strata variables. Charities flagged `is_ancillary | is_ancillary_provisional` are excluded (grant-makers, not donation-seekers).
 
 ## Distributional analysis
 

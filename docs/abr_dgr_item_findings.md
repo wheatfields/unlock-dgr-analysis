@@ -93,3 +93,43 @@ the ACNC register, not the bulk XML):
 non-fund entities using the word, so the flag is provisional and should not
 be used for headline statistics without validation against the ATO ancillary
 fund counts.
+
+---
+
+## Update (2026-07-16): DGR Listing files DO carry item numbers
+
+**Finding:** The ABN Lookup DGR Listing page
+(https://abr.business.gov.au/Tools/DgrListing) publishes two downloadable
+fixed-width plain-text files that **do** include the DGR item number:
+
+1. **DGR endorsed entities** — column layout (1-based start positions):  
+   ABN: 1, ABN status: 13, DGR status date: 24, State: 40, Postcode: 46,
+   Entity name: 59, DGR item number: 260, DGR item type: 271.
+
+2. **DGR funds, authorities and institutions** — column layout:  
+   ABN: 1, ABN status: 13, DGR status date: 24, State: 45, Postcode: 51,
+   DGR fund name: 64, Entity name: 289, DGR item number: 490.
+
+Item 2 rows in the entities file are the ancillary funds (public and private),
+giving a definitive structural classification.
+
+**Pipeline change:** A new ingestion module `R/ingest_dgr_listing.R` now
+downloads and parses both files. The resulting `dgr_listing.parquet` is
+joined in `build_charity_master()` to produce:
+
+- `dgr_item_number` — entity-level DGR item number (1, 2, or 4) from the
+  entities file.
+- `is_ancillary` — TRUE where `dgr_item_number == 2` (definitive flag).
+- `has_item1_fund` — TRUE where the ABN also appears in the funds file (it
+  operates a DGR-endorsed fund).
+
+The provisional name-match flag (`is_ancillary_provisional`) is **retained**
+for comparison and as a safety net for rows not matched in the listing
+(e.g. charities with ACNC-withheld ABNs or very recently endorsed funds).
+
+`build_dgr_gap_analysis()` now excludes charities where
+`is_ancillary | is_ancillary_provisional`.
+
+**Historical findings above are preserved** for the record — the ABR bulk
+extract and ABR API genuinely do not expose item numbers; the DGR Listing
+download files are a separate product.
