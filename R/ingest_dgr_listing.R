@@ -29,17 +29,31 @@
 
 DGR_LISTING_BASE_URL <- "https://abr.business.gov.au/Tools/DgrListing"
 
-# Known-good direct download URLs (verified against ABR listing page).
+# Download URLs for the two DGR Listing fixed-width files.
 # ABR occasionally rotates these; if they fail the download will skip
 # gracefully and log the URL so it can be updated here.
-DGR_LISTING_ENTITIES_URL <- paste0(
-  "https://data.gov.au/data/dataset/",
-  "b050b242-4487-4306-abf5-07ca073e5594/",   # placeholder — ABR does not
-  "resource/dgr_entities/download/dgr_entities.txt"  # expose a stable DOI URL
-)
-# Actual ABR download URLs (used at runtime; override above placeholder):
 DGR_ENTITIES_URL <- "https://abr.business.gov.au/Tools/DgrListing?exportFormat=text&type=entity"
 DGR_FUNDS_URL    <- "https://abr.business.gov.au/Tools/DgrListing?exportFormat=text&type=fund"
+
+# Column positions (1-based start) for the entities fixed-width file.
+# Source: ABN Lookup help page (https://abr.business.gov.au/Help/DGR).
+# Validate on first run: ABNs should parse as 11 digits; item numbers as 1/2/4.
+ENTITIES_COLS <- list(
+  start = c( 1,  13,  24,  40,  46,  59, 260, 271),
+  end   = c(12,  23,  39,  45,  58, 259, 270,  NA),
+  names = c("abn", "abn_status", "dgr_status_date",
+            "state", "postcode", "entity_name",
+            "dgr_item_number", "dgr_item_type")
+)
+
+# Column positions (1-based start) for the funds / authorities / institutions file.
+FUNDS_COLS <- list(
+  start = c( 1,  13,  24,  45,  51,  64, 289, 490),
+  end   = c(12,  23,  44,  50,  63, 288, 489,  NA),
+  names = c("abn", "abn_status", "dgr_status_date",
+            "state", "postcode", "dgr_fund_name",
+            "entity_name", "dgr_item_number")
+)
 
 # ---- Download helpers -------------------------------------------------------
 
@@ -87,18 +101,12 @@ download_dgr_listing_funds <- function(raw_dir, force = FALSE) {
 
 #' Parse the DGR endorsed-entities fixed-width file.
 #'
-#' Column layout (1-based start positions):
-#'   ABN: 1  ABN_status: 13  dgr_status_date: 24  state: 40  postcode: 46
-#'   entity_name: 59  dgr_item_number: 260  dgr_item_type: 271
+#' Column layout defined in ENTITIES_COLS (start positions from ABN Lookup help page).
 .parse_dgr_entities <- function(path) {
   col_spec <- readr::fwf_positions(
-    start = c( 1,  13,  24,  40,  46,  59, 260, 271),
-    end   = c(12,  23,  39,  45,  58, 259, 270,  NA),
-    col_names = c(
-      "abn", "abn_status", "dgr_status_date",
-      "state", "postcode", "entity_name",
-      "dgr_item_number", "dgr_item_type"
-    )
+    start     = ENTITIES_COLS$start,
+    end       = ENTITIES_COLS$end,
+    col_names = ENTITIES_COLS$names
   )
   suppressWarnings(
     readr::read_fwf(path, col_positions = col_spec,
@@ -110,18 +118,12 @@ download_dgr_listing_funds <- function(raw_dir, force = FALSE) {
 
 #' Parse the DGR funds / authorities / institutions fixed-width file.
 #'
-#' Column layout (1-based start positions):
-#'   ABN: 1  ABN_status: 13  dgr_status_date: 24  state: 45  postcode: 51
-#'   dgr_fund_name: 64  entity_name: 289  dgr_item_number: 490
+#' Column layout defined in FUNDS_COLS (start positions from ABN Lookup help page).
 .parse_dgr_funds <- function(path) {
   col_spec <- readr::fwf_positions(
-    start = c( 1,  13,  24,  45,  51,  64, 289, 490),
-    end   = c(12,  23,  44,  50,  63, 288, 489,  NA),
-    col_names = c(
-      "abn", "abn_status", "dgr_status_date",
-      "state", "postcode", "dgr_fund_name",
-      "entity_name", "dgr_item_number"
-    )
+    start     = FUNDS_COLS$start,
+    end       = FUNDS_COLS$end,
+    col_names = FUNDS_COLS$names
   )
   suppressWarnings(
     readr::read_fwf(path, col_positions = col_spec,
