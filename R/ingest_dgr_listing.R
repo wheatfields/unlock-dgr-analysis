@@ -32,8 +32,9 @@ DGR_LISTING_BASE_URL <- "https://abr.business.gov.au/Tools/DgrListing"
 # Download URLs for the two DGR Listing fixed-width files.
 # ABR occasionally rotates these; if they fail the download will skip
 # gracefully and log the URL so it can be updated here.
-DGR_ENTITIES_URL <- "https://abr.business.gov.au/Tools/DgrListing?exportFormat=text&type=entity"
-DGR_FUNDS_URL    <- "https://abr.business.gov.au/Tools/DgrListing?exportFormat=text&type=fund"
+# Source: linked from https://abr.business.gov.au/Tools/DgrListing
+DGR_ENTITIES_URL <- "https://abr.business.gov.au/Tools/DownloadDgrEndorsed"
+DGR_FUNDS_URL    <- "https://abr.business.gov.au/Tools/DownloadDgrFunds"
 
 # Column positions (1-based start) for the entities fixed-width file.
 # Source: ABN Lookup help page (https://abr.business.gov.au/Help/DGR).
@@ -144,8 +145,9 @@ download_dgr_listing_funds <- function(raw_dir, force = FALSE) {
       state           = stringr::str_trim(state),
       postcode        = stringr::str_trim(postcode),
       entity_name     = stringr::str_trim(entity_name),
+      # Raw value is text like "Item 1" / "Item 2"; extract the number
       dgr_item_number = suppressWarnings(
-        as.integer(stringr::str_trim(dgr_item_number))
+        as.integer(stringr::str_extract(dgr_item_number, "[0-9]+"))
       )
     ) |>
     # Drop header/footer rows (ABN column will be non-numeric or wrong length)
