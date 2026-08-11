@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Data pipeline: Unlock DGR analysis, end to end</title>
+<style>
+  :root {
+    --teal: #0f766e; --teal-dark: #0b4742; --amber: #b45309;
+    --slate: #334155; --slate-light: #64748b; --bg: #f8fafc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; background: #e2e8f0; padding: 24px; }
+  .slide {
+    max-width: 1360px; margin: 0 auto; background: white; border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.12); padding: 34px 44px 26px;
+  }
+  .kicker { font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--slate-light); margin-bottom: 6px; }
+  h1 { font-size: 26px; color: var(--teal-dark); line-height: 1.25; margin-bottom: 20px;
+    border-left: 5px solid var(--teal); padding-left: 14px; }
+
+  .stage-labels, .flow { display: grid;
+    grid-template-columns: 25.5% 2.5% 23.5% 2.5% 25.5% 2.5% 18%; gap: 0; }
+  .stage-labels { margin-bottom: 8px; }
+  .stage-labels div { font-size: 12.5px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--amber); font-weight: 600; }
+  .flow { align-items: stretch; }
+  .arrow-col { display: flex; align-items: center; justify-content: center; }
+  .arrow-col span { font-size: 24px; color: var(--teal); }
+
+  .stack { display: flex; flex-direction: column; gap: 8px; }
+  .grp { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--slate-light); margin: 2px 0 -3px 2px; }
+  .card { background: var(--bg); border: 1px solid #e2e8f0; border-radius: 7px;
+    padding: 7px 10px; }
+  .card .name { font-size: 12.5px; font-weight: 700; color: var(--teal-dark); }
+  .card .name .pub { font-weight: 400; color: var(--slate-light); font-size: 11px; }
+  .card .what { font-size: 11.5px; color: var(--slate); line-height: 1.35; margin-top: 1px; }
+  .card.curated { border-style: dashed; }
+
+  .combine { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+  .key-card { background: var(--teal); color: white; border-radius: 8px;
+    padding: 12px 14px; text-align: center; box-shadow: 0 3px 12px rgba(15,118,110,.35); }
+  .key-card .big { font-size: 18px; font-weight: 800; }
+  .key-card .sub { font-size: 11.5px; margin-top: 3px; opacity: .92; line-height: 1.35; }
+  .out-card { background: white; border: 2px solid var(--teal); border-radius: 7px; padding: 7px 10px; }
+  .out-card .name { font-size: 12.5px; font-weight: 700; color: var(--teal-dark); }
+  .out-card .what { font-size: 11.5px; color: var(--slate); line-height: 1.35; margin-top: 1px; }
+  .check { font-size: 11px; color: var(--slate-light); line-height: 1.4;
+    background: var(--bg); border: 1px dashed #cbd5e1; border-radius: 7px; padding: 7px 10px; }
+  .check b { color: var(--teal-dark); }
+
+  .analysis { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+  .an-card { border: 1px solid #e2e8f0; border-left: 4px solid var(--amber);
+    border-radius: 7px; padding: 8px 11px; background: white; }
+  .an-card .name { font-size: 12.5px; font-weight: 700; color: var(--teal-dark); }
+  .an-card .what { font-size: 11.5px; color: var(--slate); line-height: 1.4; margin-top: 1px; }
+  .an-card .num { color: var(--amber); font-weight: 700; }
+
+  .deliver { display: flex; flex-direction: column; justify-content: center; }
+  .jc { background: var(--teal-dark); color: white; border-radius: 10px; padding: 16px 15px;
+    box-shadow: 0 4px 16px rgba(11,71,66,.4); }
+  .jc .to { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.4px; opacity: .8; }
+  .jc .title { font-size: 16px; font-weight: 800; margin: 4px 0 8px; line-height: 1.3; }
+  .jc ul { list-style: none; }
+  .jc li { font-size: 12px; line-height: 1.45; padding: 4px 0 4px 16px; position: relative;
+    border-top: 1px solid rgba(255,255,255,.15); }
+  .jc li::before { content: "\25B8"; position: absolute; left: 2px; color: #5eead4; }
+  .jc b { color: #5eead4; }
+
+  .footnote { font-size: 11.5px; color: var(--slate-light); margin-top: 18px; line-height: 1.55;
+    border-top: 1px solid #e2e8f0; padding-top: 10px; }
+  @media print { body { background: white; padding: 0; } .slide { box-shadow: none; } }
+</style>
+</head>
+<body>
+
+<div class="slide">
+  <div class="kicker">Data pipeline &mdash; Unlock DGR analysis, end to end</div>
+  <h1>Open government data in, one reproducible pipeline through, evidence-backed
+      reform numbers out</h1>
+
+  <div class="stage-labels">
+    <div>1 &middot; Sources (all public)</div><div></div>
+    <div>2 &middot; One pipeline, joined on ABN</div><div></div>
+    <div>3 &middot; Analyses</div><div></div>
+    <div>4 &middot; Deliverable</div>
+  </div>
+
+  <div class="flow">
+    <!-- Stage 1 -->
+    <div class="stack">
+      <div class="grp">ACNC &mdash; who charities are &amp; what they report</div>
+      <div class="card">
+        <div class="name">Charity Register <span class="pub">data.gov.au</span></div>
+        <div class="what">65,430 charities: identity, size, registration, FY end.</div>
+      </div>
+      <div class="card">
+        <div class="name">Annual Information Statements <span class="pub">data.gov.au</span></div>
+        <div class="what">Financials FY2019&ndash;24 (~51&ndash;54k charities/yr): donations &amp; bequests, income.</div>
+      </div>
+      <div class="card">
+        <div class="name">AIS Programs <span class="pub">data.gov.au</span></div>
+        <div class="what">Program descriptions 2021&ndash;24 &rarr; target-subtype classification.</div>
+      </div>
+      <div class="grp">ATO / ABR &mdash; DGR status &amp; tax statistics</div>
+      <div class="card">
+        <div class="name">ABR bulk extract + API <span class="pub">data.gov.au / abr.gov.au</span></div>
+        <div class="what">Day-level DGR <i>endorsed-from</i> dates &mdash; 27,623 charities. The event in the event study.</div>
+      </div>
+      <div class="card">
+        <div class="name">DGR Listing <span class="pub">ABN Lookup</span></div>
+        <div class="what">DGR item numbers: ~26k entities + 8.7k funds; Item&nbsp;2 = ancillary funds (PAF/PuAF).</div>
+      </div>
+      <div class="card">
+        <div class="name">ATO Taxation Statistics <span class="pub">ato.gov.au</span></div>
+        <div class="what">Gift deductions timeseries; ancillary-fund counts &amp; the $1,527m distribution pool.</div>
+      </div>
+      <div class="grp">Context &amp; curated inputs</div>
+      <div class="card curated">
+        <div class="name">ABS CPI 6401.0 &middot; reform mapping &amp; subtype rules</div>
+        <div class="what">CPI deflator; reviewed charity&rarr;reform-outcome mapping and auditable keyword rules.</div>
+      </div>
+    </div>
+
+    <div class="arrow-col"><span>&#10132;</span></div>
+
+    <!-- Stage 2 -->
+    <div class="combine">
+      <div class="key-card">
+        <div class="big">R <code>targets</code> pipeline</div>
+        <div class="sub">download &rarr; parse &rarr; join on <b>ABN</b> &rarr; analytical tables
+          (Parquet + CSV). Fully scripted &mdash; anyone can rebuild from raw.</div>
+      </div>
+      <div class="out-card">
+        <div class="name">charity_master</div>
+        <div class="what">One row per charity (65,430): identity + DGR status + endorsement date + ancillary flags.</div>
+      </div>
+      <div class="out-card">
+        <div class="name">charity_financials_panel</div>
+        <div class="what">Charity &times; year: 314,322 rows, 62,612 charities, FY2019&ndash;24.</div>
+      </div>
+      <div class="out-card">
+        <div class="name">dgr_gap_analysis + reform_scenarios</div>
+        <div class="what">Panel + DGR status + subtype cohorts; ancillary funds excluded; scenario bases.</div>
+      </div>
+      <div class="check">
+        <b>Validation gate:</b> every build cross-checks against published ATO anchors
+        (gift deductions, ancillary-fund counts within ~5%) and internal consistency
+        rules before outputs are used.
+      </div>
+    </div>
+
+    <div class="arrow-col"><span>&#10132;</span></div>
+
+    <!-- Stage 3 -->
+    <div class="analysis">
+      <div class="an-card">
+        <div class="name">Event study &mdash; what endorsement does</div>
+        <div class="what">646 established charities that gained DGR FY2020&ndash;23, each its own control:
+          median donations <span class="num">+47% nominal / +30% real</span>. Staggered cohorts rule out
+          macro shocks; placebo cohorts ~0%.</div>
+      </div>
+      <div class="an-card">
+        <div class="name">Reform scenario impact &mdash; who gains &amp; loses</div>
+        <div class="what">Uplift applied to <span class="num">17,903 gainers</span> ($716m donation base):
+          <span class="num">+$215m/yr central</span> (+$337m high). PC removals net
+          <span class="num">&minus;$90m</span> &mdash; 2,924 losers are donation-heavy (median $62k vs $4.7k).</div>
+      </div>
+      <div class="an-card">
+        <div class="name">Grant-pool access &mdash; the ancillary-fund channel</div>
+        <div class="what">$1,527m/yr PAF/PuAF distributions: newly eligible cohorts could access
+          <span class="num">$108&ndash;638m</span> depending on allocation rule; ~$170m displaced from
+          incumbents under PC removals.</div>
+      </div>
+    </div>
+
+    <div class="arrow-col"><span>&#10132;</span></div>
+
+    <!-- Stage 4 -->
+    <div class="deliver">
+      <div class="jc">
+        <div class="to">Handed to JC</div>
+        <div class="title">Headline findings &amp; methodology report</div>
+        <ul>
+          <li><b>Evidence-backed uplift range</b> for newly eligible charities: +30% central / +47% high</li>
+          <li><b>Scenario net impacts:</b> expansion +$215m/yr; PC pure change &minus;$90m/yr</li>
+          <li><b>Pool-access ranges</b> for target cohorts</li>
+          <li><b>Methodology &amp; caveats</b> &mdash; every number traceable to open data; pipeline reproducible on request</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    All sources are open government data (refreshed 2026); no confidential or donor-level records used.
+    Known limitations, stated up front: AIS financials are self-reported; endorsement dates reflect current
+    DGR status (revoked endorsements not visible); ancillary funds missing from the DGR Listing are
+    flagged by name-match as a documented fallback; reform outcome mapping reflects the PC recommendation
+    interpretation agreed with the team (ancillary funds retain DGR). Pipeline: github &mdash;
+    unlock-dgr-analysis (R/<code>targets</code>; analysis/dgr_event_study/uplift_calculation.ipynb).
+  </div>
+</div>
+
+</body>
+</html>

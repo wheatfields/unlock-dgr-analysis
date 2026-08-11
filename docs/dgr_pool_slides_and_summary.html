@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DGR Reform — Pool Redistribution Slides &amp; Work Summary</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; max-width: 860px; margin: 2em auto; padding: 0 1.5em; color: #222; line-height: 1.5; }
+  h1 { font-size: 1.5em; border-bottom: 2px solid #1b6ca8; padding-bottom: 0.3em; }
+  h2 { font-size: 1.25em; color: #1b6ca8; margin-top: 1.6em; }
+  h3 { font-size: 1.05em; margin-top: 1.2em; }
+  hr { border: none; border-top: 1px solid #ccc; margin: 2em 0; }
+  li { margin-bottom: 0.35em; }
+  strong { color: #111; }
+  em { color: #555; }
+  code { background: #f2f2f2; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }
+  .note { background: #f6f8fa; border-left: 4px solid #1b6ca8; padding: 0.7em 1em; font-size: 0.95em; }
+</style>
+</head>
+<body>
+
+<h1>DGR Reform — Two Slides &amp; Summary of Recent Work</h1>
+
+<p class="note">Note: the notebook's numbers differ slightly from the R script (gainer revenue share 33% vs 35%; displaced $152–179m vs $165–179m) because the notebook weights charities using the dgr_gap_analysis base while the R script uses the financials panel — same story, worth picking one source for the slides (I've used the notebook's below since that's the shareable artefact).</p>
+
+<hr>
+
+<h2>Slide 1 — Where the $1.5bn ancillary-fund pool can flow after DGR reform</h2>
+
+<p><strong>Story.</strong> PAFs and PuAFs distributed <strong>$1,527m in 2023-24</strong> (PAF $914m / PuAF $613m; net assets $17.5bn and compounding). This money can only go to DGR Item 1 charities — so DGR reform redraws the map of who can receive it. Under both scenarios ~<strong>17,900 charities become newly eligible</strong>; under PC pure change ~<strong>2,900 charities also lose access</strong>. Ancillary funds themselves keep their DGR under both scenarios (the PC retains &ldquo;giving funds&rdquo;; its removals target recipient activity classes), so the pool stays intact.</p>
+
+<p><strong>Method.</strong> Fixed-pool redistribution bounds. Charity-level eligibility flags from our reform mapping (latest AIS-year, ancillary funds excluded from the recipient base); pool split between incumbents and gainers under three mechanical allocation rules — pro-rata to donations, to revenue, or equal per charity. The ATO never publishes recipient-level flows, so these bound <em>access</em>, not predicted grants.</p>
+
+<p><strong>Findings</strong> <em>(visual: the new two-panel hero chart in the notebook)</em></p>
+<ul>
+  <li>Gainers could access <strong>$109m–$684m/yr</strong> (7% of the pool under the donations rule → 45% under equal-per-charity). PC is marginally more redistributive than Expansion because losers exit the base.</li>
+  <li>PC pure change also <strong>displaces ~$150–180m/yr</strong> (≈11% of today's pool) currently accessible to the charities that lose DGR.</li>
+  <li>Recipients' reported donations cap plausibility: the donations rule pins every group at 16.7% of what it actually raises; count-rule figures for small cohorts are upper bounds.</li>
+</ul>
+
+<p><strong>So what.</strong> Expansion grows access without disrupting anyone; PC pure change moves more money but creates a losing side worth ~$170m/yr of pool access. Either way, meaningful new philanthropic capital opens up to newly-endorsed charities — <em>if</em> they can actually attract it, which is Slide 2.</p>
+
+<hr>
+
+<h2>Slide 2 — Will newly-endorsed charities capture it? Evidence from past &ldquo;switchers&rdquo;</h2>
+
+<p><strong>Story.</strong> We tested whether DGR endorsement actually changes giving, using 646 established charities that gained DGR during 2019–24 as a pseudo-counterfactual experiment.</p>
+
+<p><strong>Method.</strong> Event study around each charity's endorsement year (ABR day-level endorsement dates mapped to financial years), CPI-adjusted, with two comparison cohorts (always-DGR, never-DGR), a placebo test on random fake endorsement dates, and a baseline-dependence split.</p>
+
+<p><strong>Findings</strong> <em>(visual: event-time step vs placebo chart — alt1_event_placebo.png)</em></p>
+<ul>
+  <li>Real (CPI-adjusted) donations to switchers rise ~<strong>+30% within-charity</strong> after endorsement — a clear step at year 0, absent in the placebo.</li>
+  <li>Median real donation growth 2019→2024: <strong>switchers +38% vs 0% for always-DGR and 0% for never-DGR</strong> — the effect is not sector trend.</li>
+  <li>It's a <strong>one-off level shift</strong>, not a new growth trajectory; charities with low donation-dependence gain most (share of income from donations ~2%→9%).</li>
+</ul>
+
+<p><strong>So what.</strong> Endorsement genuinely unlocks giving. The gainer ranges on Slide 1 aren't just theoretical access — history says newly-endorsed charities convert endorsement into real donation growth, supporting the case that reform redirects philanthropic dollars toward the newly eligible.</p>
+
+<hr>
+
+<h2>Summary of the last few days' work</h2>
+
+<ol>
+  <li><p><strong>Checked the teammate's &ldquo;donation share before/after DGR&rdquo; analysis, then rebuilt it properly.</strong> Mapped ABR day-level endorsement dates to financial years (respecting each charity's FY end month), built a 2019–2024 panel (we extended AIS ingestion back to 2019), and gated to 646 <em>established</em> switchers to avoid new-charity startup artefacts.</p></li>
+
+  <li><p><strong>Key methodological pivot — from &ldquo;share of revenue&rdquo; to median dollar changes.</strong> The original framing (donations as % of revenue) is flat (~0.30–0.33) before and after endorsement — but that's because total income grows in step with donations, not because endorsement does nothing. Switching to within-charity <strong>median real donation levels</strong> revealed the true effect: a ~+30% one-off step at endorsement.</p></li>
+
+  <li><p><strong>Pseudo-counterfactual testing</strong> to establish the step is causal-ish, not artefact:</p>
+    <ul>
+      <li><strong>Three-cohort comparison:</strong> switchers +37.8% median real growth 2019→2024 vs 0% for always-DGR and 0% for never-DGR.</li>
+      <li><strong>Placebo test:</strong> random fake endorsement years show no step (seed-controlled).</li>
+      <li><strong>Anticipation check:</strong> modest pre-endorsement drift only; <strong>dip at t−2</strong> diagnosed as a 2023-cohort COVID/composition artefact, not behaviour.</li>
+      <li><strong>Baseline-dependence split:</strong> low-dependence charities gain most; high-dependence show regression to the mean.</li>
+    </ul>
+  </li>
+
+  <li><p><strong>Reform scenario modelling</strong> from the team's eligibility mapping (PC pure change vs Expansion): charity-level counts (23.5k keepers, 17.9k gainers, 2.9k ordinary losers), donor-side uplift estimates ($172–337m/yr at 24–47% uplift), and the pool redistribution above.</p></li>
+
+  <li><p><strong>Research correction:</strong> verified against the PC's <em>Future Foundations for Giving</em> report that ancillary funds <strong>retain</strong> DGR (&ldquo;giving funds&rdquo; — renamed, higher payout, not de-endorsed). Overrode the mapping's 1,209 ancillary &ldquo;loser&rdquo; flags in both the R script and notebook, dropped the erroneous &ldquo;$700m pool at risk&rdquo; finding, and flagged the artefact to raise with the mapping's author.</p></li>
+
+  <li><p><strong>Deliverables produced:</strong> R event-study suite (<code>analysis/dgr_event_study/</code> — CSVs + summary/alternative charts), <code>pool_redistribution_scenarios.R</code>, the reworked <code>analysis/layer1_pool_redistribution.ipynb</code> with the two-scenario hero chart, and the two-slide outline above.</p></li>
+</ol>
+
+</body>
+</html>

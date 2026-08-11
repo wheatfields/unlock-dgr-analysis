@@ -112,7 +112,6 @@ abn,charity_legal_name,subtype,rule_id,rule_status,pattern
 20958151103,West Footscray Neighbourhood House Association Inc,neighbourhood_house,NH-NAME-01,whitelisted,neighbourhood house|neighborhood house
 97689716244,Woodend Neighbourhood House Inc,neighbourhood_house,NH-NAME-01,whitelisted,neighbourhood house|neighborhood house
 39126270641,Yarrawonga Neighbourhood House Incorporated,neighbourhood_house,NH-NAME-01,whitelisted,neighbourhood house|neighborhood house
-NA,NA,neighbourhood_house,NH-NAME-01,whitelisted,neighbourhood house|neighborhood house
 27950105846,Amaroo Neighbourhood Centre Inc,neighbourhood_house,NH-NAME-02,whitelisted,neighbourhood centre|neighborhood centre
 98678590083,Armidale Neighbourhood Centre Inc,neighbourhood_house,NH-NAME-02,whitelisted,neighbourhood centre|neighborhood centre
 62769398508,BURDEKIN NEIGHBOURHOOD CENTRE ASSOC INC,neighbourhood_house,NH-NAME-02,whitelisted,neighbourhood centre|neighborhood centre
@@ -226,7 +225,6 @@ NA,NA,neighbourhood_house,NH-NAME-01,whitelisted,neighbourhood house|neighborhoo
 47206509746,Wyong Neighborhood Centre Inc,neighbourhood_house,NH-NAME-02,whitelisted,neighbourhood centre|neighborhood centre
 56234060187,Young Neighbourhood Centre,neighbourhood_house,NH-NAME-02,whitelisted,neighbourhood centre|neighborhood centre
 98351635645,Zeehan Neighbourhood Centre Inc,neighbourhood_house,NH-NAME-02,whitelisted,neighbourhood centre|neighborhood centre
-NA,NA,neighbourhood_house,NH-NAME-02,whitelisted,neighbourhood centre|neighborhood centre
 62704931585,Anglesea Community House Inc,neighbourhood_house,NH-NAME-03,whitelisted,community house
 65282972116,Arrabri Community House Inc,neighbourhood_house,NH-NAME-03,whitelisted,community house
 28785686462,BURNIE COMMUNITY HOUSE INC,neighbourhood_house,NH-NAME-03,whitelisted,community house
@@ -313,4 +311,3 @@ NA,NA,neighbourhood_house,NH-NAME-02,whitelisted,neighbourhood centre|neighborho
 98498608650,"William Langford Community House, Inc",neighbourhood_house,NH-NAME-03,whitelisted,community house
 48932340254,Winchelsea Community House Inc.,neighbourhood_house,NH-NAME-03,whitelisted,community house
 97069778990,Yarrahapinni Community House Incorporated,neighbourhood_house,NH-NAME-03,whitelisted,community house
-NA,NA,neighbourhood_house,NH-NAME-03,whitelisted,community house

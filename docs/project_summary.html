@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unlock DGR Analysis — Project Summary</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #1a1a2e;
+  background: #fff;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 40px 32px 60px;
+  line-height: 1.55;
+  font-size: 14.5px;
+}
+h1 {
+  font-size: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #4a90d9;
+}
+h2 {
+  font-size: 18px;
+  margin: 28px 0 10px;
+  color: #1c4e80;
+}
+p, ul, ol { margin-bottom: 12px; }
+ul, ol { padding-left: 26px; }
+li { margin-bottom: 6px; }
+strong { color: #111; }
+em { color: #333; }
+code {
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  background: #f1f3f5;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.meta {
+  font-size: 12.5px;
+  color: #6c757d;
+  margin-bottom: 24px;
+}
+@media print {
+  body { padding: 0; font-size: 12pt; }
+}
+</style>
+</head>
+<body>
+
+<h1>Unlock DGR Analysis — Project Summary</h1>
+<div class="meta">Justice Connect Unlock DGR campaign · 2026 Actuaries Institute Hackathon · 10 July 2026</div>
+
+<h2>The aim</h2>
+<p>Justice Connect's Unlock DGR campaign argues that Australia's Deductible Gift Recipient (DGR) framework arbitrarily excludes thousands of charities — you can claim a tax deduction for donating to some causes but not others, based on categories largely frozen since the 1990s. For the 2026 Actuaries Institute Hackathon, our task is to build a rigorous, public-data evidence base quantifying <strong>who benefits, and by how much, if DGR eligibility expands</strong> to four campaign priority cohorts: neighbourhood houses, disaster preparedness, injury prevention, and human rights charities.</p>
+
+<h2>What we built</h2>
+<p>A fully reproducible R <code>{targets}</code> pipeline that downloads, cleans, links, and validates every relevant public dataset:</p>
+<ul>
+  <li><strong>ACNC Charity Register</strong> (65,430 charities) — the foundation; everything joins to it by ABN.</li>
+  <li><strong>ABR API DGR lookups</strong> — individual endorsement queries for all 65,430 ABNs (no bulk list exists): 27,623 DGR-endorsed (42%), 37,807 not (58%).</li>
+  <li><strong>ACNC Annual Information Statements 2021–2024</strong> — harmonised into a 211,895-row charity-year financials panel via an explicit column mapping that errors loudly on schema drift.</li>
+  <li><strong>AIS program-level CLASSIE classifications</strong> — what charities actually <em>do</em>, which proved decisive for cohort identification.</li>
+  <li><strong>ATO Taxation Statistics</strong> — 44 years of individual giving ($9.1B claimed in 2022-23), donor demographics, DGR counts by category, and PAF/PuAF ancillary fund series to 2023-24.</li>
+</ul>
+<p>Plus a 22-check validation report against published anchors, refreshed documentation (data dictionary from real schemas, pipeline map, plain-language stakeholder brief, volunteer DuckDB setup), all committed and pushed.</p>
+
+<h2>Chain of thought for the overall plan</h2>
+<p>The reasoning chain that shaped the design:</p>
+<ol>
+  <li><strong>The naive question is unanswerable.</strong> "How much money would flow to newly eligible charities?" cannot be answered directly — the ATO publishes no recipient-level data on where PAF/PuAF distributions go, and no dataset tracks charities before/after DGR endorsement. Chasing this would have wasted the hackathon.</li>
+  <li><strong>Reframe as access, not flows.</strong> Ancillary funds (PAFs/PuAFs) are legally <em>required</em> to distribute only to DGRs. Their $1.53B/yr in distributions (FY2023-24) is a structurally locked pool. Reform doesn't guarantee money moves — but it removes a legal barrier. So model <strong>potential access to the pool</strong>, presented honestly as scenario ranges, not point predictions.</li>
+  <li><strong>Split benefit into two distinct layers</strong> so effects aren't double-counted and each gets the right method:
+    <ul>
+      <li><strong>Layer 1 — Redistribution:</strong> existing philanthropic dollars becoming accessible (the ancillary pool).</li>
+      <li><strong>Layer 2 — Pie growth:</strong> DGR endorsement increases total giving (the Productivity Commission's $1.50-per-$1 multiplier). We <em>cite</em> the PC figure rather than pretend to re-derive it, but build a cross-sectional plausibility check: the donations gap between DGR and non-DGR charities within size × sector strata.</li>
+    </ul>
+  </li>
+  <li><strong>"Who benefits" blocks everything.</strong> No estimate is credible without defensible cohort definitions. The original purpose+name-keyword approach was too conservative (e.g. only 79 disaster preparedness charities). Program-level CLASSIE data widened this dramatically — but every expansion rule was made auditable: a rules file where only human-whitelisted rules count, candidates reported separately for review. Final frozen cohorts: neighbourhood houses 312, disaster preparedness 387, injury prevention 237, human rights 851 — 1,745 distinct charities.</li>
+  <li><strong>Measure leakage.</strong> A large share of each cohort <em>already has</em> DGR (66.7% of disaster preparedness, 62.7% human rights, 67.1% injury prevention — but only 25% of neighbourhood houses). Only the newly eligible members can benefit, so every estimate is leakage-adjusted. This is also a campaign insight in itself: neighbourhood houses are the most excluded cohort.</li>
+  <li><strong>Be honest about losers.</strong> If the pool partially redistributes, incumbent DGR charities competing in the same donor markets lose share. Public data can't model actual losses, so we do a descriptive exposure analysis: who competes (by purpose proxy and size band), how donation-dependent they are, how many are highly exposed (&gt;50% donation dependence).</li>
+  <li><strong>Validate everything against published anchors.</strong> Every build cross-checks totals against ATO publications and ACNC lodgment counts — 22 automated pass/fail assertions — so figures quoted in campaign material can be defended.</li>
+</ol>
+
+<h2>Results so far</h2>
+<ul>
+  <li><strong>Layer 1 scenario ranges</strong> (annual pool access, $m/yr, min–max across three allocation bases — count, donations, and revenue share): disaster preparedness 0.9–3.7, human rights 1.5–7.1, injury prevention 0.2–2.2, neighbourhood houses 0.3–6.2.</li>
+  <li><strong>Incumbent exposure:</strong> e.g. neighbourhood houses' donor market has 6,552 DGR incumbents, 2,414 highly exposed; disaster preparedness only 354/64.</li>
+  <li><strong>Layer 2 handoff dataset</strong> (<code>dgr_gap_analysis</code>, 198,141 charity-years): financials + DGR status + subtype + strata variables, ancillary funds excluded — ready for the teammate who owns the donations-gap modelling.</li>
+  <li><strong>A finding along the way:</strong> DGR <em>item numbers</em> (Item 1 vs Item 2) don't exist in any bulk ABR product — documented in <code>docs/abr_dgr_item_findings.md</code>, with a provisional name-match ancillary flag (294 funds) as the workaround.</li>
+</ul>
+
+<h2>Steps for tackling my side</h2>
+<ol>
+  <li><strong>Sync outputs to SharePoint</strong> — sync the hackathon Data library locally via OneDrive, set <code>UNLOCKDGR_SHAREPOINT_PATH</code>, run <code>scripts/sync_outputs.R</code> (now ships Parquet + CSV into <code>latest/</code> and a dated <code>versions/</code> snapshot).</li>
+  <li><strong>Onboard volunteers</strong> — point them at <code>volunteer_setup.md</code> and the data dictionary; they query via DuckDB, no repo access needed.</li>
+  <li><strong>Hand off Layer 2</strong> — give the teammate <code>dgr_gap_analysis.parquet</code>, walk through strata definitions, leakage stats, and the "selection not causation" caveat; review their method.</li>
+  <li><strong>Review outstanding cohort candidates</strong> — the non-whitelisted rules (surf life saving, SAR, fire brigades, public safety) sit in <code>analysis/subtype_candidates/</code>; whitelist or reject, and add any manual ABNs to <code>data/mappings/target_subtypes.csv</code>.</li>
+  <li><strong>Write the narrative</strong> — turn Layer 1 ranges + leakage + incumbent exposure into campaign-facing findings, leading with neighbourhood houses (lowest leakage, most to gain) and honest scenario framing.</li>
+  <li><strong>Combine layers</strong> — once Layer 2 lands, present the two layers side by side (never summed without caveats) as the total reform benefit picture.</li>
+  <li><strong>Refresh before final submission</strong> — re-run <code>tar_make</code>, confirm all 22 validation checks pass, re-sync SharePoint, commit.</li>
+</ol>
+
+</body>
+</html>

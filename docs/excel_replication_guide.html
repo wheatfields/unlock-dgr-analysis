@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unlock DGR — Datasets &amp; How to Replicate the Analysis in Excel</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #1a1a2e;
+  background: #fff;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 40px 32px 60px;
+  line-height: 1.55;
+  font-size: 14.5px;
+}
+h1 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #4a90d9;
+}
+h2 {
+  font-size: 18px;
+  margin: 28px 0 10px;
+  color: #1c4e80;
+}
+h3 {
+  font-size: 15px;
+  margin: 20px 0 8px;
+  color: #1c4e80;
+}
+p, ul, ol { margin-bottom: 12px; }
+ul, ol { padding-left: 26px; }
+li { margin-bottom: 6px; }
+strong { color: #111; }
+code {
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  background: #f1f3f5;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+}
+th, td {
+  border: 1px solid #dee2e6;
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #f1f6fb; }
+.meta {
+  font-size: 12.5px;
+  color: #6c757d;
+  margin-bottom: 24px;
+}
+.note {
+  background: #fff8e6;
+  border-left: 4px solid #e6a817;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+}
+@media print {
+  body { padding: 0; font-size: 11pt; }
+}
+</style>
+</head>
+<body>
+
+<h1>Datasets &amp; How to Replicate the Analysis in Excel</h1>
+<div class="meta">Unlock DGR campaign · 2026 Actuaries Institute Hackathon · 14 July 2026</div>
+
+<h2>Datasets used</h2>
+<p>All files are in the shared <code>data/analytical/</code> folder (also on SharePoint). Each comes as a CSV you can open straight in Excel.</p>
+
+<table>
+<thead>
+<tr><th>File</th><th>What it is</th><th>One row per</th></tr>
+</thead>
+<tbody>
+<tr><td><code>charity_master.csv</code></td><td>Every registered charity, with a yes/no DGR column</td><td>charity (65,430 rows)</td></tr>
+<tr><td><code>charity_target_subtypes.csv</code></td><td>Which charities belong to the four campaign groups</td><td>charity &times; group (1,860 rows)</td></tr>
+<tr><td><code>charity_financials_panel.csv</code></td><td>Charity financial returns, 4 years (2021&ndash;2024)</td><td>charity &times; year (211,895 rows)</td></tr>
+<tr><td><code>dgr_gap_analysis.csv</code></td><td><strong>The main analysis file</strong> &mdash; financials + DGR status + campaign group + size + state, all joined together</td><td>charity &times; year (198,141 rows)</td></tr>
+<tr><td><code>reform_scenarios.csv</code></td><td>Layer 1 results: how much of the $1.53B ancillary fund pool each group could access</td><td>group &times; scenario (12 rows)</td></tr>
+<tr><td><code>dgr_incumbent_exposure.csv</code></td><td>Existing DGR charities that compete for the same donors</td><td>group &times; size band (15 rows)</td></tr>
+<tr><td><code>ancillary_funds_timeseries.csv</code></td><td>PAF/PuAF fund stats per year since 2000-01</td><td>year &times; fund type (37 rows)</td></tr>
+<tr><td><code>gifts_timeseries.csv</code></td><td>Total tax-deductible giving per year since 1978-79</td><td>year (41 rows)</td></tr>
+</tbody>
+</table>
+
+<p>For everything below you only need <strong>dgr_gap_analysis.csv</strong>. The small results files (reform_scenarios, dgr_incumbent_exposure) are already finished tables &mdash; just open and read them.</p>
+
+<h2>Replicating each step in Excel</h2>
+
+<h3>Setup (do once)</h3>
+<ol>
+  <li>Open <code>dgr_gap_analysis.csv</code>. Note it may be slow &mdash; it has ~198,000 rows.</li>
+  <li>Keep only the latest year per charity: filter <code>ais_year</code> to <strong>2024</strong>. (Our scripts take each charity's most recent year, which is 2024 for most. Filtering to 2024 gets you very close.)</li>
+  <li>Turn the data into a Table (Ctrl+T).</li>
+</ol>
+
+<h3>Step 1 — Who's locked out (cohort profiles)</h3>
+<ol>
+  <li>Filter out blank <code>target_subtype</code> (these rows are charities not in any campaign group).</li>
+  <li>Insert a PivotTable. Rows: <code>target_subtype</code>. Columns: <code>has_dgr</code>. Values: count of <code>abn</code>.</li>
+  <li>This gives group sizes and how many already have DGR. The % without DGR is the "newly eligible" share &mdash; e.g. ~74% of neighbourhood houses have no DGR.</li>
+  <li>For the money profile: filter <code>has_dgr</code> = FALSE, then in the pivot use median of <code>total_gross_income</code> and <code>donations_and_bequests</code> (Excel pivots don't do median &mdash; use <code>=MEDIAN(IF(...))</code> array formulas on the filtered table, or just sort and eyeball the middle value).</li>
+  <li>For the state spread: Rows: <code>target_subtype</code>, Columns: <code>state</code>, Values: count.</li>
+</ol>
+
+<h3>Step 2 — Layer 1 pool access</h3>
+<p>Nothing to compute &mdash; open <code>reform_scenarios.csv</code>. <code>annual_dollars</code> is the estimated yearly pool access per group under each of three sharing assumptions (<code>basis</code>). Divide <code>annual_dollars</code> by <code>n_newly_eligible</code> for dollars per charity.</p>
+
+<h3>Step 3 — The donations gap (DGR vs non-DGR)</h3>
+<ol>
+  <li>Back in the 2024-filtered table, filter <code>charity_size</code> = "Small" and <code>donations_and_bequests</code> &gt; 0.</li>
+  <li>Filter one purpose column at a time to "Y" &mdash; e.g. <code>advancing_social_or_public_welfare</code> for neighbourhood houses.</li>
+  <li>Compare the <strong>median</strong> <code>donations_and_bequests</code> for <code>has_dgr</code> = TRUE vs FALSE. You should see DGR charities raise roughly 3&ndash;5&times; more.</li>
+  <li>Also compare the share with <em>any</em> donations: count rows with donations &gt; 0 divided by all rows, split by <code>has_dgr</code>. DGR charities are 20&ndash;35 percentage points more likely to receive anything at all.</li>
+</ol>
+
+<h3>Step 4 — Who might lose</h3>
+<p>Open <code>dgr_incumbent_exposure.csv</code>. Each row shows, for one group and size band: how many existing DGR charities compete in that donor market (<code>n_incumbents</code>), their combined donations (<code>total_donations</code>), and how many rely on donations for over half their income (<code>n_highly_exposed</code>). Compare <code>total_donations</code> to the group's <code>annual_dollars</code> from Step 2 to see the redistribution is small &mdash; around 1% or less of the incumbent market in most groups.</p>
+
+<div class="note">
+<strong>Things to know</strong>
+<ul style="margin-bottom:0;">
+  <li>Medians are used everywhere instead of averages because a few giant charities distort averages.</li>
+  <li><code>donation_dependence</code> = donations &divide; total income (already computed for you).</li>
+  <li>The gap in Step 3 shows association, not proof of cause &mdash; charities with DGR may differ in other ways too.</li>
+</ul>
+</div>
+
+</body>
+</html>

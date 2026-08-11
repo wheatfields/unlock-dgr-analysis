@@ -1,0 +1,13 @@
+"scenario","rule","grp","share","dollars_m"
+"PC pure change","revenue","gainer",0.349859942968513,534.329183062791
+"PC pure change","revenue","incumbent",0.650140057031487,992.936780937208
+"PC pure change","donations","gainer",0.0786159475198626,120.067460874696
+"PC pure change","donations","incumbent",0.921384052480137,1407.1985031253
+"PC pure change","count","gainer",0.447955762398038,684.147589288195
+"PC pure change","count","incumbent",0.552044237601962,843.118374711805
+"Expansion","revenue","gainer",0.323127119138476,493.501051105568
+"Expansion","revenue","incumbent",0.676872880861524,1033.76491289443
+"Expansion","donations","gainer",0.0707281282905994,108.020663035658
+"Expansion","donations","incumbent",0.929271871709401,1419.24530096434
+"Expansion","count","gainer",0.417416647237118,637.506238132245
+"Expansion","count","incumbent",0.582583352762882,889.759725867755

@@ -17,7 +17,10 @@
 #' mapping, or if vintages disagree on the harmonised column set.
 #' -> processed/ais_financials_panel.parquet, keyed by abn x ais_year.
 
-AIS_YEARS <- c(2021, 2022, 2023, 2024)
+AIS_YEARS <- c(2019, 2020, 2021, 2022, 2023, 2024)
+
+# Harmonised columns that hold free text and must not be coerced to numeric.
+AIS_TEXT_COLUMNS <- c("how_purposes_pursued")
 
 # ---- CKAN resolution --------------------------------------------------------
 
@@ -159,7 +162,7 @@ ingest_ais_financials_panel <- function(raw_files, mapping_file, processed_dir) 
 
     df$abn <- stringr::str_remove_all(df$abn, "[^0-9]")
 
-    value_cols <- setdiff(names(df), "abn")
+    value_cols <- setdiff(names(df), c("abn", AIS_TEXT_COLUMNS))
     for (col in value_cols) {
       raw_vals <- df[[col]]
       num      <- suppressWarnings(as.numeric(gsub(",", "", raw_vals)))

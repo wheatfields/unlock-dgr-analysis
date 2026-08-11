@@ -1,0 +1,3 @@
+"scenario","n_gainers","gainer_donation_base","uplift_central","uplift_high","n_losers","loser_donation_base_at_risk","net_central"
+"PC pure change",17903,716270144,214881043.2,336646967.68,2924,1016087198,-89945116.2
+"Expansion",17903,716270144,214881043.2,336646967.68,0,0,214881043.2

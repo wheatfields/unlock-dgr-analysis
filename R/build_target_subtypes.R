@@ -64,8 +64,13 @@ resolve_ais_programs_csv_url <- function(year) {
   )
 }
 
-#' Download the AIS programs CSV for each year in AIS_YEARS.
-download_acnc_ais_programs <- function(raw_dir, force = FALSE, years = AIS_YEARS) {
+#' Download the AIS programs CSV for each year in AIS_PROGRAMS_YEARS.
+#' Programs data starts with the 2021 AIS (no programs file exists for 2020
+#' and earlier), so this is pinned separately from AIS_YEARS.
+AIS_PROGRAMS_YEARS <- c(2021, 2022, 2023, 2024)
+
+download_acnc_ais_programs <- function(raw_dir, force = FALSE,
+                                       years = AIS_PROGRAMS_YEARS) {
   prog_dir <- file.path(raw_dir, "acnc_ais_programs")
   dests <- vapply(years, function(yr) {
     existing <- if (fs::dir_exists(prog_dir)) {
@@ -153,6 +158,7 @@ report_subtype_candidates <- function(programs_files, register_path, rules_file,
   # 2. Charity-level candidates for classie_classification rules (any status).
   classie_rules <- rules[rules$rule_type == "classie_classification", ]
   classie_candidates <- programs |>
+    dplyr::filter(!is.na(classification)) |>
     dplyr::inner_join(
       classie_rules[, c("rule_id", "subtype", "pattern", "status")],
       by = dplyr::join_by(classification == pattern)
@@ -167,10 +173,10 @@ report_subtype_candidates <- function(programs_files, register_path, rules_file,
   # 3. Name-keyword candidates from the register (any status).
   kw_rules <- rules[rules$rule_type == "name_keyword", ]
   kw_candidates <- lapply(seq_len(nrow(kw_rules)), function(i) {
-    hits <- register[stringr::str_detect(
+    hits <- register[dplyr::coalesce(stringr::str_detect(
       register$charity_legal_name,
       stringr::regex(kw_rules$pattern[i], ignore_case = TRUE)
-    ), c("abn", "charity_legal_name")]
+    ), FALSE), c("abn", "charity_legal_name")]
     if (nrow(hits) == 0) return(NULL)
     hits$subtype     <- kw_rules$subtype[i]
     hits$rule_id     <- kw_rules$rule_id[i]
@@ -286,13 +292,20 @@ build_charity_target_subtypes <- function(register_path, programs_files,
     rule_rows <- lapply(seq_len(nrow(active)), function(i) {
       r <- active[i, ]
       if (r$rule_type == "name_keyword") {
-        hits <- register[stringr::str_detect(
+        # coalesce: str_detect(NA, ...) is NA, and base-R indexing with NA
+        # manufactures phantom all-NA rows (withheld register names).
+        hits <- register[dplyr::coalesce(stringr::str_detect(
           register$charity_legal_name,
           stringr::regex(r$pattern, ignore_case = TRUE)
-        ), c("abn", "charity_legal_name")]
+        ), FALSE), c("abn", "charity_legal_name")]
       } else {  # classie_classification
-        abns <- unique(programs$abn[programs$classification == r$pattern])
-        hits <- register[register$abn %in% abns, c("abn", "charity_legal_name")]
+        # Exclude NA classifications: NA == pattern is NA, which subsetting
+        # keeps, injecting NA into abns; NA %in% abns is then TRUE for all
+        # withheld-ABN register rows.
+        abns <- unique(programs$abn[!is.na(programs$classification) &
+                                      programs$classification == r$pattern])
+        hits <- register[!is.na(register$abn) & register$abn %in% abns,
+                         c("abn", "charity_legal_name")]
       }
       if (nrow(hits) == 0) {
         cli::cli_alert_warning("Whitelisted rule {r$rule_id} matched 0 charities")

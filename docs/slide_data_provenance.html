@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Data provenance: DGR endorsement event study</title>
+<style>
+  :root {
+    --teal: #0f766e; --teal-dark: #0b4742; --amber: #b45309;
+    --slate: #334155; --slate-light: #64748b; --bg: #f8fafc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; background: #e2e8f0; padding: 24px; }
+  .slide {
+    max-width: 1280px; margin: 0 auto; background: white; border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.12); padding: 36px 48px 28px; position: relative;
+  }
+  .kicker { font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--slate-light); margin-bottom: 6px; }
+  h1 { font-size: 27px; color: var(--teal-dark); line-height: 1.25; margin-bottom: 22px;
+    border-left: 5px solid var(--teal); padding-left: 14px; }
+
+  .stage-labels { display: grid; grid-template-columns: 30% 4% 30% 4% 32%; gap: 0; margin-bottom: 8px; }
+  .stage-labels div { font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--amber); font-weight: 600; }
+  .flow { display: grid; grid-template-columns: 30% 4% 30% 4% 32%; gap: 0; align-items: stretch; }
+
+  .src-stack { display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--bg); border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: 10px 12px; }
+  .card .name { font-size: 13.5px; font-weight: 700; color: var(--teal-dark); }
+  .card .name .pub { font-weight: 400; color: var(--slate-light); font-size: 12px; }
+  .card .what { font-size: 12.5px; color: var(--slate); line-height: 1.4; margin-top: 2px; }
+  .card .scale { font-size: 11.5px; color: var(--slate-light); margin-top: 3px; }
+  .card.deflator { border-style: dashed; }
+
+  .arrow-col { display: flex; align-items: center; justify-content: center; }
+  .arrow-col span { font-size: 26px; color: var(--teal); }
+
+  .combine { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+  .combine .key-card { background: var(--teal); color: white; border-radius: 8px;
+    padding: 14px 16px; text-align: center; box-shadow: 0 3px 12px rgba(15,118,110,.35); }
+  .combine .key-card .big { font-size: 21px; font-weight: 800; }
+  .combine .key-card .sub { font-size: 12.5px; margin-top: 3px; opacity: .92; }
+  .out-card { background: white; border: 2px solid var(--teal); border-radius: 8px; padding: 10px 12px; }
+  .out-card .name { font-size: 13.5px; font-weight: 700; color: var(--teal-dark); }
+  .out-card .what { font-size: 12.5px; color: var(--slate); line-height: 1.4; margin-top: 2px; }
+  .combine .note { font-size: 11.5px; color: var(--slate-light); line-height: 1.45; padding: 0 4px; }
+
+  .funnel { display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+  .fstep { border-radius: 6px; padding: 8px 12px; color: white; background: var(--slate-light); }
+  .fstep .n { font-size: 16px; font-weight: 800; }
+  .fstep .l { font-size: 12px; line-height: 1.3; opacity: .95; }
+  .fstep:nth-child(1) { width: 100%; background: #94a3b8; }
+  .fstep:nth-child(2) { width: 88%; background: #64748b; }
+  .fstep:nth-child(3) { width: 76%; background: #33746d; }
+  .fstep:nth-child(4) { width: 64%; background: var(--teal); box-shadow: 0 3px 10px rgba(15,118,110,.35); }
+  .fstep:nth-child(4) .n { font-size: 19px; }
+  .fuse { margin-top: 8px; font-size: 12.5px; color: var(--slate); line-height: 1.5;
+    background: var(--bg); border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; }
+  .fuse b { color: var(--teal-dark); }
+
+  .footnote { font-size: 11.5px; color: var(--slate-light); margin-top: 20px; line-height: 1.55;
+    border-top: 1px solid #e2e8f0; padding-top: 10px; }
+  @media print { body { background: white; padding: 0; } .slide { box-shadow: none; } }
+</style>
+</head>
+<body>
+
+<div class="slide">
+  <div class="kicker">Data provenance &mdash; DGR endorsement event study</div>
+  <h1>Every number traces to open government data: four public sources, joined on ABN,
+      reduced to one clean cohort</h1>
+
+  <div class="stage-labels">
+    <div>1 &middot; Where it comes from</div><div></div>
+    <div>2 &middot; How it&rsquo;s combined</div><div></div>
+    <div>3 &middot; How it&rsquo;s used</div>
+  </div>
+
+  <div class="flow">
+    <!-- Stage 1: sources -->
+    <div class="src-stack">
+      <div class="card">
+        <div class="name">ACNC Charity Register <span class="pub">&mdash; data.gov.au</span></div>
+        <div class="what">Who each charity is: legal name, size, registration date, financial year end.</div>
+        <div class="scale">65,430 registered charities</div>
+      </div>
+      <div class="card">
+        <div class="name">ACNC Annual Information Statements <span class="pub">&mdash; data.gov.au</span></div>
+        <div class="what">What each charity reports: donations &amp; bequests, total gross income, per year.</div>
+        <div class="scale">6 filing years (FY2019&ndash;24), ~51&ndash;54k charities each</div>
+      </div>
+      <div class="card">
+        <div class="name">ABR bulk extract <span class="pub">&mdash; data.gov.au (XML)</span></div>
+        <div class="what"><b>When</b> each charity became DGR endorsed: the day-level
+          <i>endorsed-from</i> date &mdash; the event that drives the study.</div>
+        <div class="scale">27,623 register charities carry an endorsement date</div>
+      </div>
+      <div class="card">
+        <div class="name">DGR Listing <span class="pub">&mdash; ABN Lookup (ATO)</span></div>
+        <div class="what">DGR item numbers &mdash; identifies Item&nbsp;2 ancillary funds (PAF/PuAF)
+          so pass-through vehicles can be excluded.</div>
+        <div class="scale">~26k endorsed entities + ~8.7k funds</div>
+      </div>
+      <div class="card deflator">
+        <div class="name">ABS CPI 6401.0 <span class="pub">&mdash; deflator</span></div>
+        <div class="what">Financial-year average CPI (2019&nbsp;=&nbsp;100) converts nominal donations to real.</div>
+      </div>
+    </div>
+
+    <div class="arrow-col"><span>&#10132;</span></div>
+
+    <!-- Stage 2: combine -->
+    <div class="combine">
+      <div class="key-card">
+        <div class="big">Joined on ABN</div>
+        <div class="sub">one key across all four sources &middot; reproducible R pipeline
+          (<code>targets</code>), raw &rarr; parquet &rarr; analytical</div>
+      </div>
+      <div class="out-card">
+        <div class="name">charity_master</div>
+        <div class="what">One row per charity (65,430): identity + DGR status + endorsement date
+          + ancillary-fund flags.</div>
+      </div>
+      <div class="out-card">
+        <div class="name">charity_financials_panel</div>
+        <div class="what">One row per charity per year: 314,322 rows, 62,612 charities,
+          FY2019&ndash;24 financials.</div>
+      </div>
+      <div class="note">Endorsement dates are rounded to each charity&rsquo;s <b>own financial
+        year</b> (non-June year ends handled), so &ldquo;before&rdquo; and &ldquo;after&rdquo;
+        line up with what the charity actually reported.</div>
+    </div>
+
+    <div class="arrow-col"><span>&#10132;</span></div>
+
+    <!-- Stage 3: use -->
+    <div class="funnel">
+      <div class="fstep"><span class="n">65,430</span> <span class="l">registered charities</span></div>
+      <div class="fstep"><span class="n">27,623</span> <span class="l">DGR endorsed (ABR date)</span></div>
+      <div class="fstep"><span class="n">691</span> <span class="l">switchers: endorsed FY2020&ndash;23 with
+        valid donations data before <i>and</i> after</span></div>
+      <div class="fstep"><span class="n">646</span> <span class="l">established switchers &mdash; the study
+        cohort (start-ups &amp; ancillary funds excluded)</span></div>
+      <div class="fuse">
+        Each charity&rsquo;s donations are compared <b>before vs after its own endorsement
+        year</b> &rarr; median uplift <b>+47% nominal / +30% real</b> &rarr; applied to the
+        ~17,900 charities that would gain DGR under the PC reform
+        (<b>$716m</b> donation base &rarr; <b>~$215m</b> central uplift).
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    All sources are open government data, refreshed 2026: ACNC Register &amp; AIS datasets
+    (data.gov.au), ABR bulk extract (data.gov.au), ABN Lookup DGR Listing (abr.business.gov.au),
+    ABS CPI cat. 6401.0. Cross-checked against ATO Taxation Statistics (gift deductions; ancillary
+    fund counts within ~5% of ATO anchors). Known limitations: AIS financials are self-reported;
+    ancillary funds not on the DGR Listing are flagged by name-match (&ldquo;ancillary&rdquo;) as a
+    documented fallback. Pipeline &amp; calculation: github &mdash; unlock-dgr-analysis
+    (R/<code>targets</code> ingest, analysis/dgr_event_study/uplift_calculation.ipynb).
+  </div>
+</div>
+
+</body>
+</html>

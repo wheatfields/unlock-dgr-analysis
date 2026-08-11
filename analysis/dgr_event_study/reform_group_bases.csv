@@ -1,0 +1,8 @@
+"group","is_ancillary","n_charities","n_with_fin","donations_total","donations_median"
+"gainer",FALSE,17903,13683,716270144,4680
+"keeper",FALSE,22063,18070,8394732987,30282
+"keeper",TRUE,1427,1372,860277967,101093.5
+"loser",FALSE,2924,2762,1016087198,62120.5
+"loser",TRUE,1209,714,410079064,117219
+"never",FALSE,19313,17255,1947342264,60000
+"never",TRUE,11,0,0,NA

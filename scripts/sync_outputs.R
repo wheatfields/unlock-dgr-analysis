@@ -28,11 +28,11 @@ if (!dir.exists(SHAREPOINT_PATH)) {
   stop("SharePoint path does not exist: ", SHAREPOINT_PATH)
 }
 
-source_files <- list.files("data/analytical", pattern = "\\.parquet$",
+source_files <- list.files("data/analytical", pattern = "\\.(parquet|csv)$",
                             full.names = TRUE)
 
 if (length(source_files) == 0) {
-  stop("No analytical Parquet files found. Run scripts/build.R first.")
+  stop("No analytical outputs found. Run scripts/build.R first.")
 }
 
 # Copy with a 'latest' subfolder and a dated subfolder for versioning.
@@ -46,14 +46,6 @@ for (f in source_files) {
   file.copy(f, file.path(latest_dir, basename(f)), overwrite = TRUE)
   file.copy(f, file.path(dated_dir,  basename(f)), overwrite = TRUE)
   message("Synced: ", basename(f))
-}
-
-# Also copy the methodology and data dictionary
-for (doc in c("docs/methodology.md", "docs/data_dictionary.md",
-              "docs/volunteer_setup.md")) {
-  if (file.exists(doc)) {
-    file.copy(doc, file.path(latest_dir, basename(doc)), overwrite = TRUE)
-  }
 }
 
 message("\nSync complete.")

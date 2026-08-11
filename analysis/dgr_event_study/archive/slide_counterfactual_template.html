@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Counterfactual testing: DGR endorsement event study</title>
+<style>
+  :root {
+    --teal: #0f766e; --teal-dark: #0b4742; --amber: #b45309;
+    --slate: #334155; --slate-light: #64748b; --bg: #f8fafc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; background: #e2e8f0; padding: 24px; }
+  .slide {
+    max-width: 1280px; margin: 0 auto; background: white; border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.12); padding: 36px 48px 28px; position: relative;
+  }
+  .kicker { font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--slate-light); margin-bottom: 6px; }
+  h1 { font-size: 27px; color: var(--teal-dark); line-height: 1.25; margin-bottom: 20px;
+    border-left: 5px solid var(--teal); padding-left: 14px; }
+  .cols { display: grid; grid-template-columns: 38% 62%; gap: 28px; align-items: start; }
+  .method h2, .evidence h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--amber); margin-bottom: 10px; }
+  .method ul { list-style: none; }
+  .method li { font-size: 14.5px; color: var(--slate); line-height: 1.45;
+    padding: 8px 0 8px 26px; position: relative; border-bottom: 1px solid #f1f5f9; }
+  .method li::before { content: "\25B8"; position: absolute; left: 6px; color: var(--teal); }
+  .method b { color: var(--teal-dark); }
+  .evidence img { width: 100%; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .evidence .caption { font-size: 12px; color: var(--slate-light); margin-top: 6px; font-style: italic; }
+  .banner { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 14px; margin-top: 24px; }
+  .stat { text-align: center; padding: 14px 10px; border-radius: 8px; background: var(--bg);
+    border: 1px solid #e2e8f0; }
+  .stat.hero { background: var(--teal); color: white; transform: scale(1.06); box-shadow: 0 3px 12px rgba(15,118,110,.35); }
+  .stat .num { font-size: 34px; font-weight: 800; line-height: 1.1; }
+  .stat.hero .num { font-size: 42px; }
+  .stat .lbl { font-size: 12.5px; margin-top: 4px; line-height: 1.3; }
+  .stat:not(.hero) .num { color: var(--slate); }
+  .stat:not(.hero) .lbl { color: var(--slate-light); }
+  .footnote { font-size: 11.5px; color: var(--slate-light); margin-top: 16px; line-height: 1.5;
+    border-top: 1px solid #e2e8f0; padding-top: 10px; }
+  .backup { max-width: 1280px; margin: 26px auto 0; background: white; border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 28px 48px; }
+  .backup h2 { font-size: 16px; color: var(--teal-dark); margin-bottom: 12px; }
+  .backup .cols2 { display: grid; grid-template-columns: 44% 56%; gap: 28px; align-items: center; }
+  .backup img { width: 100%; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .notes { font-size: 13.5px; color: var(--slate); line-height: 1.55; }
+  .notes li { margin-bottom: 10px; margin-left: 18px; }
+  @media print { body { background: white; padding: 0; } .slide { box-shadow: none; } }
+</style>
+</head>
+<body>
+
+<div class="slide">
+  <div class="kicker">Counterfactual testing &mdash; DGR endorsement event study</div>
+  <h1>Charities that gained DGR endorsement grew donations ~30% in real terms &mdash;
+      and the timing shows it&rsquo;s the endorsement, not the economy</h1>
+
+  <div class="cols">
+    <div class="method">
+      <h2>What we did</h2>
+      <ul>
+        <li><b>Randomisation isn&rsquo;t possible</b> &mdash; tax status can&rsquo;t be assigned
+            experimentally. Best feasible design: an <b>event study</b> on charities that actually
+            switched status, each charity its own control.</li>
+        <li><b>646 established charities</b> gained DGR endorsement FY2020&ndash;23 (ACNC filings
+            &times; ABR endorsement dates, 2019&ndash;2024). Start-ups and ancillary funds excluded.</li>
+        <li>Donations compared <b>before vs after each charity&rsquo;s own endorsement year</b>,
+            CPI-deflated; <b>median</b> across charities (robust to a heavily right-skewed
+            distribution).</li>
+        <li><b>Staggered adoption is the counterfactual test:</b> four cohorts endorsed in four
+            different years. A macro shock lifts every cohort in the same <i>calendar</i> year;
+            a DGR effect lifts each cohort at its own <i>endorsement</i> year &mdash; which is
+            what we observe.</li>
+      </ul>
+    </div>
+    <div class="evidence">
+      <h2>The timing evidence</h2>
+      <img src="data:image/png;base64,{{COHORTS_B64}}" alt="Staggered cohort chart">
+      <div class="caption">Each cohort indexed to its own pre-endorsement median = 100
+        (grey = before, teal = after, band = endorsement FY). The step-up follows the endorsement
+        year around the calendar.</div>
+    </div>
+  </div>
+
+  <div class="banner">
+    <div class="stat">
+      <div class="num">+47%</div>
+      <div class="lbl">nominal median growth<br>(= theory ceiling at elasticity &minus;1)</div>
+    </div>
+    <div class="stat hero">
+      <div class="num">+30%</div>
+      <div class="lbl"><b>real (CPI-adjusted) median &mdash; our central estimate</b></div>
+    </div>
+    <div class="stat">
+      <div class="num">+29%</div>
+      <div class="lbl">anticipation-robust check<br>(baseline restricted to years &le; &minus;2)</div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    Robustness: pre-endorsement trend is flat (median real drift from year &minus;2 to &minus;1: 0.0%);
+    guarding against application-period ramp-up moves the estimate 0.3pp. Placebo: never-DGR and
+    always-DGR cohorts show ~0% real median growth over the same window. The effect concentrates in
+    charities with small donation bases (&lt;$10k/yr) &mdash; the same profile as the ~17,900 charities
+    that would gain DGR under the PC reform (median donations ~$4.7k/yr).
+    Source: analysis/dgr_event_study/uplift_calculation.ipynb.
+  </div>
+</div>
+
+<div class="backup">
+  <h2>Backup &mdash; the growth itself, one line per charity + speaker notes</h2>
+  <div class="cols2">
+    <div>
+      <img src="data:image/png;base64,{{SLOPES_B64}}" alt="Slope chart: before vs after per charity">
+    </div>
+    <ul class="notes">
+      <li><b>Pseudo-counterfactual, stated honestly:</b> no randomisation, so selection is possible
+          &mdash; charities might apply when they expect growth. That is why the anticipation check
+          matters: if applications were timed to expected growth, donations would rise <i>before</i>
+          endorsement. They don&rsquo;t &mdash; the pre-trend is flat.</li>
+      <li><b>Median, not mean:</b> the growth distribution is heavily right-skewed; the mean would be
+          indefensibly large. +30% is the conservative summary &mdash; and 42% of charities fell,
+          which is included in it.</li>
+      <li><b>Convergent validity:</b> price-elasticity theory at &epsilon; = &minus;1 and a 32%
+          marginal rate predicts a +47% ceiling &mdash; exactly the nominal median. The real +30%
+          implies &epsilon; &asymp; &minus;0.6, in line with the giving literature.</li>
+      <li><b>Mechanism fingerprint:</b> the effect appears only where theory says it should &mdash;
+          small-base fundraisers, not $100k+ charities with established non-donation funding. A trend
+          artefact would move everyone.</li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>
