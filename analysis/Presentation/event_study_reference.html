@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DGR Event Study — Presentation Reference</title>
+<style>
+  :root {
+    --ink: #1e2a32; --muted: #5a6b76; --accent: #0f766e; --teal: #25605f;
+    --orange: #e8702a; --red: #b3402a; --gold: #b45309; --bg: #fafbfc;
+    --card: #ffffff; --line: #e3e8ec; --hl: #fff7ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", -apple-system, Roboto, sans-serif;
+    color: var(--ink); background: var(--bg); margin: 0;
+    line-height: 1.55; font-size: 15px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 28px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 28px; }
+  h2 {
+    font-size: 19px; margin: 40px 0 12px; padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 18px 22px; margin: 14px 0;
+  }
+  .spiel-step { border-left: 4px solid var(--accent); }
+  .spiel-step .label {
+    font-weight: 700; color: var(--accent); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .oneliner {
+    background: var(--hl); border: 1px solid #f0d9bf; border-radius: 8px;
+    padding: 14px 20px; font-style: italic; font-size: 15.5px; margin: 18px 0;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th {
+    text-align: left; background: var(--ink); color: #fff; padding: 9px 12px;
+    font-weight: 600;
+  }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:nth-child(even) td { background: #f4f7f9; }
+  .q { font-weight: 700; width: 24%; }
+  .deep {
+    background: #edf6f5; border: 1px solid #c3ded9; border-radius: 8px;
+    padding: 20px 24px; margin: 16px 0;
+  }
+  .deep ol { padding-left: 22px; }
+  .deep li { margin-bottom: 10px; }
+  .keynum { display: flex; gap: 14px; flex-wrap: wrap; margin: 16px 0; }
+  .keynum .kn {
+    flex: 1 1 260px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 8px; padding: 14px 18px;
+  }
+  .kn .big { font-size: 20px; font-weight: 700; color: var(--teal); }
+  .kn.orange .big { color: var(--orange); }
+  .kn.gold .big { color: var(--gold); }
+  .kn.red .big { color: var(--red); }
+  code {
+    background: #eef1f4; padding: 1px 6px; border-radius: 4px;
+    font-size: 13px; font-family: Consolas, monospace;
+  }
+  .caveat { color: var(--muted); font-size: 13.5px; }
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; background: var(--teal); color: #fff; margin-right: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tag.warn { background: var(--red); }
+  @media print {
+    body { background: #fff; font-size: 12px; }
+    .card, .deep { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>What happens to donations when a charity gains DGR?</h1>
+<div class="subtitle">Presentation reference — spiel, causality deep dive &amp; cheat sheet.
+Companion to <code>analysis/Presentation/dgr_event_study_key_messages.ipynb</code> (panel built by
+<code>analysis/dgr_event_study/dgr_endorsement_event_study.R</code>). August 2026.</div>
+
+<div class="keynum">
+  <div class="kn"><div class="big">646 charities</div>
+    Established charities gaining DGR FY2019–FY2024 (AIS × ABR endorsement dates;
+    start-ups and ancillary funds excluded).</div>
+  <div class="kn"><div class="big">+30% real median</div>
+    Within-charity donation growth, post vs pre, CPI-deflated to FY2019 $. Nominal +47%;
+    anticipation-robust baseline ≈ +29%.</div>
+  <div class="kn gold"><div class="big">ε ≈ −0.67 implied</div>
+    Inside the PC's own estimated range for Australia (Finding 4.1: −0.48 to −1.67,
+    ALife panel of 1.5m taxpayers).</div>
+  <div class="kn orange"><div class="big">Small charities drive it</div>
+    Strongest uplift under $10k/yr pre-endorsement — the profile of the ~17,900 reform
+    gainers (median ~$4.7k/yr).</div>
+</div>
+
+<h2>1. The spiel (~2.5 minutes, follows the charts)</h2>
+
+<div class="card spiel-step">
+  <div class="label">Setup (20s)</div>
+  <p>"The whole DGR reform debate hangs on one empirical question: does endorsement actually
+  move donations? We answered it from the charity side: <strong>646 established charities
+  that gained DGR between FY2019 and FY2024</strong> — ACNC annual returns joined to ABR
+  endorsement dates, with start-ups and ancillary funds excluded so we're watching real
+  organisations before and after the switch."</p>
+</div>
+
+<div class="card spiel-step">
+  <div class="label">The headline — growth ladder (25s)</div>
+  <p>"Line every charity up from worst donation change to best, in CPI-adjusted dollars.
+  The median charity grew <strong>+30% in real terms</strong> — +47% nominal. It's not
+  universal: about 1 in 3 fell, which is exactly why we quote the median, not a mean
+  inflated by a few charities that went from nothing to something."</p>
+</div>
+
+<div class="card spiel-step">
+  <div class="label">The timing — staggered cohorts (30s)</div>
+  <p>"Here's what points to DGR as the impact. Each endorsement cohort, indexed to its own
+  pre-endorsement level, lifts off <strong>in its own endorsement year</strong> — not in any
+  common calendar year. If this were COVID, inflation, or an economy-wide giving trend, all
+  four panels would rise together in the same year. They don't."</p>
+</div>
+
+<div class="card spiel-step">
+  <div class="label">Where it lands (30s)</div>
+  <p>"The growth is concentrated in <strong>small charities</strong> — those raising under
+  $10k a year before endorsement — while established six-figure fundraisers barely move. We
+  re-cut it by the ACNC's own revenue-based size categories, classified strictly on
+  pre-endorsement data, and got the same picture. Why that matters:
+  the <strong>~17,900 charities the reform would newly endorse have median donations of
+  ~$4,700 a year</strong> — squarely in the band with the strongest observed effect."</p>
+</div>
+
+<div class="card spiel-step">
+  <div class="label">Robustness (20s)</div>
+  <p>"Could charities be ramping up before endorsement — applying with a campaign lined up?
+  Two checks say no: there's <strong>no pre-trend</strong> (median drift from year −2 to −1
+  is ~0%, about half rose), and restricting the baseline to two-plus years before
+  endorsement moves the estimate by ~0.3 points. The +30% is robust."</p>
+</div>
+
+<div class="card spiel-step">
+  <div class="label">The punchline — the elasticity dial (35s)</div>
+  <p>"Everything in this debate is a position on one dial: the price elasticity of giving.
+  Deductibility cuts the price of a $1 gift to $0.68. Our +30% implies an elasticity of
+  about <strong>−0.67 — inside the PC's own predicted range of −0.48 to −1.67</strong>. The
+  PC measured the dial from the donor side and said the charity-side approach was 'not
+  feasible, given insufficient data'. This is that measurement — and it independently lands
+  where their donor-side estimate said it should."</p>
+</div>
+
+<div class="oneliner">
+  One-liner: "646 charities that gained DGR grew donations ~30% in real terms, timed to
+  their own endorsement year, concentrated in exactly the small-charity profile the reform
+  would endorse — and the implied elasticity sits inside the PC's own range."
+</div>
+
+<h2>2. Deep dive — "How do you know DGR caused this?"</h2>
+
+<div class="deep">
+  <p><strong>Headline answer:</strong> We never claim a randomised experiment — the notebook
+  itself says other variables can contribute. What we claim is an <em>identification
+  stack</em>: five independent checks that all point the same way, plus external validation
+  against the PC's donor-side estimate. Say the limits proactively; they're the reason the
+  claims are framed as "points to" rather than "proves".</p>
+
+  <ol>
+    <li><strong>Within-charity comparison.</strong> Every charity is compared to
+    <em>itself</em> — post-endorsement mean vs its own pre-endorsement mean. Time-invariant
+    differences between charities (cause, location, size, competence) cancel out.</li>
+
+    <li><strong>Staggered timing is the killer chart.</strong> Four cohorts endorsed in four
+    different years each lift off at their own endorsement year. Any confounder would need to
+    hit FY2019 switchers in 2019, FY2020 switchers in 2020, and so on — while leaving
+    each cohort's pre-period flat. COVID, JobKeeper, inflation and giving trends are all
+    calendar-year shocks; they cannot produce this pattern.</li>
+
+    <li><strong>Inflation is handled, not hand-waved.</strong> All dollars deflated with ABS
+    CPI (6401.0, FY averages, FY2019 = 100). The +47% nominal becomes +30% real — we lead
+    with the real number.</li>
+
+    <li><strong>No anticipation.</strong> Median within-charity drift from event year −2 to
+    −1 is ~0% (about half rose) — charities were not already ramping up when they applied.
+    A baseline restricted to years ≤ −2 shifts the median by ~0.3 points.</li>
+
+    <li><strong>The effect appears where the mechanism predicts.</strong> DGR unlocks
+    deductible giving and foundation money — a channel that matters for a charity raising
+    $2k/yr and is rounding error for one raising $2m. That's exactly the gradient observed,
+    in both the donations-band split and the outcome-safe ACNC revenue-size split
+    (classified only on pre-endorsement years).</li>
+
+    <li><strong>External validation.</strong> The implied elasticity (≈ −0.67) sits inside
+    the PC's donor-side range (Finding 4.1: −0.48 to −1.67, ALife panel of 1.5m taxpayers).
+    Two completely different methods, two different datasets, one consistent answer.</li>
+  </ol>
+
+  <p><strong>Honest limits (volunteer these):</strong></p>
+  <ol>
+    <li><strong>Selection into applying.</strong> Charities that seek DGR may be
+    growth-oriented. The no-pre-trend check bounds this (they weren't already growing), but
+    motivation coinciding with endorsement can't be fully excluded. There is no control group
+    of identical charities denied DGR.</li>
+    <li><strong>Bundled channels.</strong> The uplift includes individual deductibility
+    <em>and</em> newly unlocked foundation/ancillary money — the AIS reports one donations
+    line. This is why you must <strong>never add pool-access dollars on top of the +30%</strong>:
+    it double-counts.</li>
+    <li><strong>The PC's caveat cuts both ways.</strong> The PC said the charity-side
+    approach was "not feasible, given insufficient data" (Technical Paper, p. 421). Partly
+    right — which is why this is a plausibility check that happens to land inside their
+    range, not a replacement elasticity estimate.</li>
+  </ol>
+
+  <p><strong>Soundbite:</strong> "Five checks, one answer: charities compared to themselves,
+  lift-off timed to each cohort's own endorsement year, inflation stripped out, no
+  pre-endorsement ramp-up, and the effect concentrated exactly where the mechanism says it
+  should be. And the implied elasticity lands inside the PC's own donor-side range —
+  measured from the opposite end of the transaction."</p>
+</div>
+
+<h2>3. The elasticity dial, unpacked</h2>
+
+<div class="deep">
+  <p><strong>One equation carries the whole argument:</strong>
+  <code>uplift = (1/0.68)<sup>|ε|</sup> − 1</code>. Each moving part, in order:</p>
+
+  <ol>
+    <li><strong>The tax rate <em>t</em> sets the price cut.</strong> A donor gives $1 to a DGR
+    charity, claims the deduction, gets <em>t</em> back at tax time. Net cost = 1 − <em>t</em>.
+    At <em>t</em> = 32% (≈ donation-weighted average marginal rate), the price of giving $1
+    is <strong>$0.68</strong>. That price cut is the <em>only</em> thing DGR endorsement
+    changes in the model.</li>
+
+    <li><strong>Elasticity <em>ε</em> is the behavioural dial.</strong> % change in giving per
+    % change in price. Negative: price falls, giving rises. It is the unknown the whole
+    policy debate is fighting over — every position in the debate is a value of <em>ε</em>.</li>
+
+    <li><strong>The log-log model converts the price cut into a predicted uplift.</strong>
+    Constant elasticity means giving G = A·p<sup>ε</sup>, so when price moves from $1.00 to
+    $0.68: G₁/G₀ = (0.68)<sup>ε</sup> = (1/0.68)<sup>|ε|</sup>. Why a power, not
+    "32% × ε"? Elasticity is a <em>local</em> percentage-on-percentage concept; a 32% price
+    cut is a large discrete jump, so the local response has to be compounded across the whole
+    cut — that's the power form. The linear shortcut overstates at this size.</li>
+
+    <li><strong>Turning the dial reproduces every position in the debate:</strong>
+      <table>
+        <tr><th>ε</th><th>Predicted uplift</th><th>Who says this</th></tr>
+        <tr><td>−0.48</td><td><strong>+20%</strong></td><td>PC range, bottom (Finding 4.1)</td></tr>
+        <tr><td><strong>−0.67</strong></td><td><strong>+30%</strong></td><td>← our event study, real (inverted from observed uplift)</td></tr>
+        <tr><td>−1.00</td><td><strong>+47%</strong></td><td>Treasury-efficiency threshold (PC Box B.1) — equals our <em>nominal</em> median exactly</td></tr>
+        <tr><td>−1.50</td><td>+78%</td><td>What the "$1 → $1.50" claim requires</td></tr>
+        <tr><td>−1.67</td><td><strong>+90%</strong></td><td>PC range, top</td></tr>
+      </table>
+    </li>
+
+    <li><strong>Inverting: from measured uplift back to the dial.</strong> The PC went
+    dial → uplift (estimate ε from donor tax data, predict giving). We went the other way:
+    <code>|ε| = ln(1 + uplift) / ln(1/0.68) = ln(1.30) / 0.386 ≈ 0.68</code>.
+    Same dial, measured from the opposite end of the transaction — and it lands inside
+    their range.</li>
+
+    <li><strong>The "$1 → $1.50" claim is a different reading of the same dial — and the
+    uplift is a direct test of it.</strong> Treasury efficiency asks: how much new giving
+    does $1 of forgone revenue buy? With constant elasticity,
+    <code>new giving per tax-$ = (1 − (1−t)<sup>|ε|</sup>) / t</code> — which equals exactly
+    $1.00 at |ε| = 1 for any tax rate (the break-even, PC Box B.1), and ≈ |ε| for the local
+    approximation advocacy pieces use. The bridge to our result runs in three steps:
+    <br>(a) measured +30% uplift ⇒ |ε| ≈ 0.67;
+    <br>(b) |ε| = 0.67 at t = 32% ⇒ <strong>≈ $0.71 of new giving per tax dollar</strong>;
+    <br>(c) the $1.50 claim needs |ε| ≈ 1.5, which <em>predicts a +78% real uplift</em> —
+    the 646 switchers should have grown 2.5× more than they did.
+    So the event study is not just context for the "$1 → $1.50" claim: it is an empirical
+    test, and the claim fails it. The honest line: the evidence supports ~70c of new giving
+    per tax dollar — the conservative end of the PC range, defensible on other grounds, but
+    not self-financing.</li>
+
+    <li><strong>Sensitivities and assumptions to know:</strong>
+      (a) the curve is anchored on <em>t</em> — at <em>t</em> = 45% (top marginal rate) the
+      price is $0.55 and the same ε ≈ −0.67 predicts ~+49%, so the 32% average-rate choice
+      is load-bearing;
+      (b) constant elasticity across a 32% price jump is an assumption, not a fact;
+      (c) the model assumes donors claim the deduction (non-itemisers dilute the effective
+      price cut);
+      (d) our measured uplift bundles the pure price response with new-donor and
+      foundation/ancillary access — so the implied −0.67 is best read as an <em>upper bound
+      on the price elasticity alone</em>, which strengthens, not weakens, the "conservative
+      end of the range" framing.</li>
+  </ol>
+
+  <p><strong>Soundbite:</strong> "Deductibility cuts the price of a $1 gift to 68 cents. How
+  much giving that buys depends on one number — the price elasticity. The PC estimated it
+  from 1.5 million donors' tax returns; we measured it from the charities' side; both land
+  in the same place, around two-thirds. That's real uplift, but it also means the
+  '$1 buys $1.50' claim — which needs an elasticity of 1.5 — isn't what the evidence
+  shows."</p>
+</div>
+
+<div class="card" style="border-left: 4px solid #0f766e;">
+  <div style="font-weight:700; color:#0f766e; font-size:12px; text-transform:uppercase;
+       letter-spacing:0.06em;">How to read the dial chart (chart 5)</div>
+  <p><strong>The axes.</strong> The x-axis is the disputed number: the price elasticity of
+  giving |ε| — how strongly donors respond when the price of giving falls. The y-axis is
+  what that response would look like in the data: the predicted donation uplift from
+  gaining DGR. The black curve is the conversion between them
+  (uplift = (1/0.68)<sup>|ε|</sup> − 1). Every position in the policy debate is a point on
+  this one curve.</p>
+  <p><strong>The two halves of the x-axis.</strong> ε = −1 splits the chart:
+  everything <em>left</em> of −1 means each $1 of forgone tax revenue buys <em>less</em>
+  than $1 of new giving (a subsidy with leakage); everything <em>right</em> of −1 means the
+  subsidy <em>multiplies</em> — more than $1 of new giving per tax dollar. The treasury
+  reading is built into the axis itself: at the margin, <strong>new giving per tax dollar
+  ≈ |ε|</strong> — so ε = −0.5 reads "$0.50", −1 reads "$1.00", −1.5 reads "$1.50". The
+  "$1 → $1.50" claim <em>is</em> the point ε = −1.5.</p>
+  <p><strong>The direction of inference.</strong> The PC went x → y: estimate ε from donor
+  tax data, predict the uplift. We went y → x: we <em>measured</em> the uplift (+30%) from
+  646 charities and read the curve backwards to find the ε it implies (−0.67). That's why
+  our dot is evidence, not assumption.</p>
+  <p><strong>The three marked points.</strong> Teal = our measurement (+30% → −0.67,
+  reading ~$0.70 per tax dollar). Gold = break-even (−1 → +47% — which happens to equal our
+  nominal median exactly). Red = the "$1 → $1.50" claim (−1.5 → +78% — an uplift 2.5× what
+  we observed). The green band is the PC's estimated range (−0.48 to −1.67).</p>
+  <p><strong>One-sentence read:</strong> "Our measured dot lands inside the PC's band, on
+  the conservative side of break-even — and a long way short of the +78% the $1.50 claim
+  would require."</p>
+</div>
+
+<h2>4. Cheat sheet — anticipated questions</h2>
+
+<table>
+  <tr><th>Likely question</th><th>Answer / backing</th><th>Data used</th></tr>
+  <tr>
+    <td class="q">Isn't this just COVID / inflation / a giving boom?</td>
+    <td>No — each cohort lifts off in its own endorsement year, not a common calendar year
+    (chart 2). A macro shock hits everyone at once. All figures CPI-deflated to FY2019 $.</td>
+    <td><code>switcher_panel.csv</code>; ABS CPI 6401.0</td>
+  </tr>
+  <tr>
+    <td class="q">How do you know it's causal?</td>
+    <td>See deep dive: within-charity design + staggered timing + no pre-trend + mechanism-
+    consistent concentration + external elasticity validation. We say "points to", not
+    "proves" — no control group of denied applicants exists.</td>
+    <td>Identification stack, §2 above</td>
+  </tr>
+  <tr>
+    <td class="q">Selection bias — DGR applicants aren't random?</td>
+    <td><span class="tag warn">Gotcha</span> Correct, and we bound it: no pre-endorsement
+    ramp-up (median drift −2→−1 ≈ 0%, ~half rose), and a clean baseline (years ≤ −2) moves
+    the estimate ~0.3 points. Motivation coinciding exactly with endorsement remains
+    possible; that's the residual caveat.</td>
+    <td>Pre-trend drift test, clean-baseline recomputation</td>
+  </tr>
+  <tr>
+    <td class="q">A third of charities fell — why lead with +30%?</td>
+    <td>Because it's the <em>median</em>: half did better, half worse. ~1 in 3 falling is
+    normal donation volatility; the mean would be inflated by tiny-base charities with
+    +200%+ growth (clipped in the chart). Median is the conservative, honest statistic.</td>
+    <td>Growth ladder (chart 1)</td>
+  </tr>
+  <tr>
+    <td class="q">Why exclude start-ups and ancillary funds?</td>
+    <td>Start-ups have no pre-period (growth from zero is undefined/infinite — would inflate
+    the estimate). Ancillary funds are grant-makers, not fundraisers; their "donations" are
+    structured contributions, not the response being measured.</td>
+    <td><code>is_startup</code> flag in panel build</td>
+  </tr>
+  <tr>
+    <td class="q">You bucketed by donations — isn't that the outcome?</td>
+    <td><span class="tag">Anticipated</span> Yes, so §3b re-cuts by <strong>total revenue</strong>
+    using the ACNC's own size definitions (small &lt; $500k etc., pre-FY22 thresholds
+    respected), classified in the latest <em>pre-endorsement</em> year only. Same pattern:
+    uplift strongest for small charities.</td>
+    <td>ACNC size split (3b), event-time view (3c)</td>
+  </tr>
+  <tr>
+    <td class="q">Why is large charities' growth 0% but their median dollars rose?</td>
+    <td>Two different statistics: left panel = median of <em>within-charity</em> growth (18%
+    of large charities report zero donations before and after — service-delivery orgs that
+    never fundraise); right panel = cross-sectional median level, pulled up by those that did
+    grow. Within-charity median is the honest headline.</td>
+    <td>§3b reading note</td>
+  </tr>
+  <tr>
+    <td class="q">How does +30% relate to the PC's elasticity work?</td>
+    <td>Deductibility cuts the price of a $1 gift to $0.68 (t = 32%). Uplift =
+    (1/0.68)^|ε| − 1. Our +30% ⇒ ε ≈ −0.67, inside PC Finding 4.1's range (−0.48 to −1.67).
+    The ε = −1 benchmark predicts +47% — exactly our nominal median.</td>
+    <td>Elasticity dial (chart 5); PC Finding 4.1</td>
+  </tr>
+  <tr>
+    <td class="q">Does this support the "$1 → $1.50" claim?</td>
+    <td>Not directly — that claim needs ε ≈ −1.5. Our central real estimate implies −0.67;
+    our nominal implies −1.0. We land in the PC's range but at its more conservative end.
+    Don't overclaim.</td>
+    <td>Elasticity dial annotations</td>
+  </tr>
+  <tr>
+    <td class="q">Why assume a 32% tax rate? What if donors face a different rate?</td>
+    <td>32% ≈ the donation-weighted average marginal rate (30c bracket + 2% Medicare).
+    The directional movements all run <em>one way</em>:
+    <br>• <strong>Higher assumed rate → smaller implied elasticity.</strong> The same
+    measured +30% implies |ε| ≈ <strong>0.67 at t = 32%</strong>, ≈ <strong>0.52 at 39%</strong>
+    (37c bracket), ≈ <strong>0.41 at 47%</strong> (top rate) — a bigger price cut needs less
+    behavioural response to explain the same uplift.
+    <br>• <strong>Lower assumed rate → slightly bigger:</strong> ≈ 0.73 at t = 30%
+    (no Medicare levy).
+    <br>So every plausible alternative moves the implied elasticity <em>further from</em> the
+    −1.5 the "$1 → $1.50" claim needs — 32% is the <em>generous</em> assumption for the
+    reform case. (Flip side: holding ε = −0.67 fixed, a top-rate donor's predicted uplift
+    rises to ~+49% — deeper price cut, more predicted giving.)</td>
+    <td>Inversion: |ε| = ln(1.30)/ln(1/(1−t)); §3 point 7a</td>
+  </tr>
+  <tr>
+    <td class="q">Didn't the PC say this analysis couldn't be done?</td>
+    <td>The PC said the charity-side strategy was "not feasible, given insufficient data"
+    (Technical Paper, p. 421) — and they're largely right that other variables can
+    contribute. Frame ours as bridging that gap with a plausibility check that independently
+    lands inside their donor-side range.</td>
+    <td>PC Technical Paper</td>
+  </tr>
+  <tr>
+    <td class="q">Can I add the pool-access dollars on top of the +30%?</td>
+    <td><span class="tag warn">Gotcha</span> <strong>No.</strong> The AIS reports one
+    donations line, so the +30% already bundles individual deductibility and unlocked
+    foundation/ancillary money. Stacking Layer 1 access on Layer 2 uplift double-counts.</td>
+    <td>§5 caveat in the notebook</td>
+  </tr>
+  <tr>
+    <td class="q">What does this mean for the reform scenarios?</td>
+    <td>The central +30% applied to newly eligible charities' donation bases gives gainers
+    ≈ +$215m/yr. Under PC pure change, applying a symmetric −30% to the ~2,700 losers
+    (untested assumption — only gains observed) nets ≈ −$90m. Expansion: +$215m, no losers.
+    Connects to Layer 1: <code>ancillary_pool_key_messages.ipynb</code>.</td>
+    <td><code>reform_scenario_impact.R/.csv</code>, <code>reform_group_bases.csv</code></td>
+  </tr>
+  <tr>
+    <td class="q">Is 646 charities enough / representative?</td>
+    <td>It's the full population of established switchers observable in FY2019–24 AIS data,
+    not a sample. Crucially their profile (small, low donation base) matches the ~17,900
+    reform gainers (median ~$4.7k/yr) — the extrapolation is to like charities.</td>
+    <td>Switcher panel vs gainer base comparison</td>
+  </tr>
+  <tr>
+    <td class="q">Data quality caveats if pressed</td>
+    <td>AIS donations line is self-reported/unaudited; endorsement dates from ABR; event year
+    0 (partly treated) excluded from both pre and post; longest event horizons only observed
+    for earliest cohorts (composition shift — event-time charts stop at +2).</td>
+    <td>ACNC AIS 2019–24, ABR DGR listing</td>
+  </tr>
+</table>
+
+<h2>5. Numbers to have memorised</h2>
+<div class="card">
+  <ol>
+    <li><strong>646</strong> established switchers, FY2019–24; median <strong>+30% real</strong>
+    (+47% nominal; ~+29% anticipation-robust); ~1 in 3 fell.</li>
+    <li>Effect concentrated <strong>under $10k/yr</strong> pre-endorsement — reform gainers'
+    median is <strong>~$4.7k/yr</strong> (~17,900 charities).</li>
+    <li>Implied <strong>ε ≈ −0.67</strong>, inside PC's <strong>−0.48 to −1.67</strong>;
+    price of a $1 gift falls to <strong>$0.68</strong>; ε = −1 ⇒ +47%; "$1→$1.50" needs
+    ε ≈ −1.5.</li>
+    <li>Reform arithmetic: expansion gainers <strong>≈ +$215m/yr</strong>; PC pure change
+    nets <strong>≈ −$90m/yr</strong> with symmetric loser downside. Never stack pool access
+    on top.</li>
+  </ol>
+</div>
+
+<p class="caveat">Sources: ACNC Annual Information Statements FY2019–24 joined to ABR DGR
+endorsement dates (<code>switcher_panel.csv</code> via
+<code>dgr_endorsement_event_study.R</code>); ABS CPI 6401.0; Productivity Commission,
+<em>Future Foundations for Giving</em> (2024), Finding 4.1 and Technical Paper p. 421.
+Companion reference: <code>ancillary_reference.html</code> (Layer 1 pool redistribution).</p>
+
+</div>
+</body>
+</html>

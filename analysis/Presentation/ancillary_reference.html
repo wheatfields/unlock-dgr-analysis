@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ancillary Pool — Presentation Reference</title>
+<style>
+  :root {
+    --ink: #1e2a32; --muted: #5a6b76; --accent: #1b6ca8; --teal: #25605f;
+    --orange: #e8702a; --red: #b3402a; --bg: #fafbfc; --card: #ffffff;
+    --line: #e3e8ec; --hl: #fff7ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", -apple-system, Roboto, sans-serif;
+    color: var(--ink); background: var(--bg); margin: 0;
+    line-height: 1.55; font-size: 15px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 28px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 28px; }
+  h2 {
+    font-size: 19px; margin: 40px 0 12px; padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent);
+  }
+  h3 { font-size: 15.5px; margin: 22px 0 8px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 18px 22px; margin: 14px 0;
+  }
+  .spiel-step { border-left: 4px solid var(--accent); }
+  .spiel-step .label {
+    font-weight: 700; color: var(--accent); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .oneliner {
+    background: var(--hl); border: 1px solid #f0d9bf; border-radius: 8px;
+    padding: 14px 20px; font-style: italic; font-size: 15.5px; margin: 18px 0;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th {
+    text-align: left; background: var(--ink); color: #fff; padding: 9px 12px;
+    font-weight: 600;
+  }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:nth-child(even) td { background: #f4f7f9; }
+  .q { font-weight: 700; width: 24%; }
+  .deep {
+    background: #eef4f9; border: 1px solid #c9dcea; border-radius: 8px;
+    padding: 20px 24px; margin: 16px 0;
+  }
+  .deep ol { padding-left: 22px; }
+  .deep li { margin-bottom: 10px; }
+  .keynum {
+    display: flex; gap: 14px; flex-wrap: wrap; margin: 16px 0;
+  }
+  .keynum .kn {
+    flex: 1 1 260px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 8px; padding: 14px 18px;
+  }
+  .kn .big { font-size: 20px; font-weight: 700; color: var(--teal); }
+  .kn.orange .big { color: var(--orange); }
+  .kn.red .big { color: var(--red); }
+  code {
+    background: #eef1f4; padding: 1px 6px; border-radius: 4px;
+    font-size: 13px; font-family: Consolas, monospace;
+  }
+  .caveat { color: var(--muted); font-size: 13.5px; }
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; background: var(--teal); color: #fff; margin-right: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tag.warn { background: var(--red); }
+  @media print {
+    body { background: #fff; font-size: 12px; }
+    .card, .deep { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Who could receive the $1.5bn ancillary-fund pool?</h1>
+<div class="subtitle">Presentation reference — spiel, cheat sheet &amp; data-gap deep dive.
+Companion to <code>analysis/Presentation/ancillary_pool_key_messages.ipynb</code> (analysis:
+<code>analysis/ancillary_redistribution/pool_redistribution.ipynb</code>). August 2026.</div>
+
+<div class="keynum">
+  <div class="kn"><div class="big">$1,527m / yr</div>
+    Pool (2023-24): $914m PAF + $613m PuAF, on $17.5bn net assets. ~10x growth since PAF regime began.</div>
+  <div class="kn"><div class="big">40% inside the fence</div>
+    ~20k of ~49.9k charities with current financials hold DGR — but they hold 78% of donations, 62% of revenue.</div>
+  <div class="kn orange"><div class="big">13,017 gainers, $109–600m/yr</div>
+    Expansion model access, $0 displaced from incumbents.</div>
+  <div class="kn red"><div class="big">−$152–206m / yr</div>
+    Displaced from 2,706 losers under PC pure change (gainer access $121–654m — materially the same as expansion).</div>
+</div>
+
+<h2>1. The spiel (~2 minutes, follows the 4 charts)</h2>
+
+<div class="card spiel-step">
+  <div class="label">Setup — the pool (30s)</div>
+  <p>"Ancillary funds — PAFs and PuAFs — are Australia's tax-advantaged giving vehicles.
+  Money goes in as deductible donations and must come out at 4–5% of assets a year, but
+  <strong>only to DGR-endorsed charities</strong>. That outflow is now
+  <strong>$1.5 billion a year</strong> — $914m from private funds, $613m from public — sitting
+  on top of $17.5 billion in net assets, and it's grown roughly tenfold since the PAF regime
+  began. DGR reform doesn't just change donor deductions; it changes who is allowed to receive
+  this pool."</p>
+</div>
+
+<div class="card spiel-step">
+  <div class="label">The fence (20s)</div>
+  <p>"Today only ~20k of the ~50k charities with current financials hold DGR — 40%. But that
+  40% holds 78% of donations and 62% of revenue. So the 60% locked out are overwhelmingly the
+  smaller, less-fundable charities — exactly the ones a distribution pool could matter most for."</p>
+</div>
+
+<div class="card spiel-step">
+  <div class="label">The scenarios (40s)</div>
+  <p>"We can't observe who actually receives the pool — recipient-level flows are never
+  published. So we bound it: four eligibility scenarios — status quo, the PC's redesign, our
+  expansion model, and universal DGR — crossed with three mechanical sharing rules:
+  proportional to donations, to revenue, or equal per charity. Under the expansion model,
+  <strong>~13,000 newly eligible charities could access $109m–$600m a year</strong> of the pool.
+  Donations-weighted is the plausible floor; count is an access ceiling, not a forecast."</p>
+</div>
+
+<div class="card spiel-step">
+  <div class="label">The punchline (30s)</div>
+  <p>"The PC's redesign and our expansion let in the <em>same</em> gainers. The difference is
+  the ~2,700 charities that lose DGR under the PC's pure change — that displaces
+  <strong>$150–210m a year</strong> of their current pool access. Expansion displaces
+  <strong>zero</strong>, and it costs the gainers only $10–50m a year of access. In other words:
+  expansion buys 'nobody loses' almost for free. That's the key message."</p>
+</div>
+
+<div class="oneliner">
+  One-liner: "There's a $1.5bn/yr pool only 40% of charities can touch; expansion opens it
+  to ~13,000 more charities for $109–600m/yr of access, and unlike the PC's version,
+  defunds nobody."
+</div>
+
+<h2>2. Deep dive — "How do you know who receives the pool today?"</h2>
+
+<div class="deep">
+  <p><strong>Headline answer:</strong> We don't — and neither does anyone outside the ATO.
+  The recipient-level data <em>exists</em>, but it is collected as protected taxpayer
+  information and has never been published. That is precisely why this analysis models
+  <em>access under transparent rules</em> rather than claiming to predict flows. Say this
+  proactively — it converts the weakest-looking point into the strongest.</p>
+
+  <ol>
+    <li><strong>The government collects it — recipient by recipient.</strong> The ATO's
+    Ancillary Fund Return (NAT 73640), Section D "Distributions made", requires every
+    non-charity fund to list the <em>name, ABN and dollar amount for each recipient</em> of
+    every distribution. Funds registered as charities (most PAFs) lodge equivalent detail via
+    the ACNC Annual Information Statement's ancillary-fund questions. So this is not a
+    collection gap — it is a <strong>publication</strong> gap.</li>
+
+    <li><strong>Why it never becomes public: taxpayer confidentiality.</strong> Return data is
+    protected information under the tax secrecy provisions (Taxation Administration Act 1953,
+    Sch 1 Div 355). The ATO can only release it as aggregates. What it publishes — annual
+    Taxation Statistics ancillary fund tables (our Tables 3 &amp; 4) — stops at fund-type
+    level: counts of funds, total donations in, total distributions out, net assets, split
+    PAF vs PuAF. <em>No recipient identity, no sector split, nothing below the aggregate.</em></li>
+
+    <li><strong>The ACNC side doesn't fill the gap either.</strong> The published AIS dataset
+    does not include grant-recipient detail, and private ancillary funds can have their
+    details withheld from the public register (we observe ~580 withheld ABNs in the data).
+    Some funds itemise grants in PDF financial statements on the register, but small funds
+    have reduced reporting obligations and the coverage is partial and unstructured — there is
+    no comprehensive, machine-readable source.</li>
+
+    <li><strong>The recipient side is blind too.</strong> Charities report
+    "donations and bequests" as a single aggregate line in the AIS. An ancillary-fund grant is
+    indistinguishable from an ordinary donation in the recipient's return — so you cannot
+    reconstruct the flows from the receiving end either. (We exploit this the other way: total
+    reported donations acts as a <em>hard ceiling</em> on what any group could have absorbed.)</li>
+
+    <li><strong>International contrast.</strong> In the US, private foundations' Form 990-PF —
+    including the full grants list — is public by law, which is why US grant-flow research is
+    possible. Australia has no equivalent disclosure regime for ancillary funds.</li>
+
+    <li><strong>The PC hit the same wall.</strong> The PC's <em>Future Foundations for
+    Giving</em> (2024) repeatedly flagged the weak public evidence base on philanthropy and
+    recommended improved public reporting on ancillary ("giving") funds and giving generally.
+    If the PC — with information-gathering powers — treated this as a data gap to be fixed,
+    it is entirely defensible that our approach is bounding scenarios, not flow prediction.
+    <span class="caveat">(Verify the exact recommendation number in the final report before
+    quoting it on stage.)</span></li>
+
+    <li><strong>Therefore: the method is the message.</strong> Given the gap, the honest
+    approach is mechanical allocation rules (donations / revenue / count) that bound the
+    answer, validated against the hard donations ceiling. Anyone claiming to know the actual
+    distribution of the pool is claiming access to data that does not publicly exist.</li>
+  </ol>
+
+  <p><strong>Soundbite:</strong> "The ATO collects every grant, name and ABN — Section D of the
+  ancillary fund return — but tax secrecy means it only ever publishes the total. We're
+  modelling access precisely because the flow data is locked in the ATO. If the government
+  published it, we'd happily replace our bounds with the real numbers — and the PC recommended
+  exactly that kind of transparency."</p>
+</div>
+
+<h2>3. Cheat sheet — anticipated questions</h2>
+
+<table>
+  <tr><th>Likely question</th><th>Answer / backing</th><th>Data used</th></tr>
+  <tr>
+    <td class="q">Where does the $1.5bn come from?</td>
+    <td>ATO Taxation Statistics 2023-24, Table 4: $1,527m distributions ($914m PAF, $613m PuAF),
+    $17.5bn net assets. Reconciles with Table 3 endorsement counts (2,406 PAF + 1,404 PuAF).</td>
+    <td><code>ancillary_funds_timeseries.csv</code> built from ATO stats</td>
+  </tr>
+  <tr>
+    <td class="q">How do you know who receives the pool today?</td>
+    <td>We don't — see deep dive above. Data is collected (AFR Section D: name, ABN, amount per
+    recipient) but protected by tax secrecy; only fund-type aggregates are ever published.
+    That's why the analysis is framed as <strong>access scenarios with bounding rules</strong>,
+    not predicted flows.</td>
+    <td>N/A — this is the core caveat, and the reason the method exists</td>
+  </tr>
+  <tr>
+    <td class="q">Why three allocation rules?</td>
+    <td>They bound the answer: donations-weighted = plausible floor (funds follow demonstrated
+    fundability); revenue = scale-based middle; count = upper bound on access. Never present
+    count as a forecast.</td>
+    <td>Latest AIS year, ~49.9k charities (ancillary funds excluded)</td>
+  </tr>
+  <tr>
+    <td class="q">Are the numbers even possible?</td>
+    <td>Yes — hard ceiling check: ancillary grants land as donations in recipients' AIS returns,
+    so reported donations cap what a group could absorb. Every scenario × rule cell passes;
+    the tightest (PC count rule) sits at 93% of ceiling.</td>
+    <td>AIS <code>donations_and_bequests</code></td>
+  </tr>
+  <tr>
+    <td class="q">Don't ancillary funds lose DGR under the PC too?</td>
+    <td><span class="tag warn">Gotcha</span> The raw mapping flags ~1,200 ancillary funds as
+    losers, but the PC final report explicitly <strong>retains ancillary funds ("giving
+    funds")</strong> — we override those flags, so the pool is intact under every scenario.</td>
+    <td><code>output_dgr_change_mapping.xlsx</code> + PC final report</td>
+  </tr>
+  <tr>
+    <td class="q">How does this relate to the PC's recommendations?</td>
+    <td>PC's <em>Future Foundations for Giving</em> narrows DGR by activity class (out:
+    religion, most education; in: health, welfare, environment, human rights, etc.), creating
+    ~2,700 losers among charities with current financials. Expansion model = same gainers,
+    grandfather all incumbents. PC gainer access $121–654m vs expansion $109–600m: nearly
+    identical access, zero displacement vs $152–206m displaced.</td>
+    <td>Team eligibility mapping (<code>pc</code> vs <code>exp</code> flags)</td>
+  </tr>
+  <tr>
+    <td class="q">Why does expansion "cost" gainers $10–50m?</td>
+    <td>Bigger eligible denominator (incumbents keep their share), so each gainer's
+    proportional slice shrinks slightly. That's the entire price of "nobody loses".</td>
+    <td>Scenario engine in the notebook</td>
+  </tr>
+  <tr>
+    <td class="q">Is this in/out of scope?</td>
+    <td>In scope: who <em>can</em> receive the pool under reform (eligibility + bounds).
+    Out of scope: predicting actual grant flows (relationship-driven), behavioural change by
+    fund trustees, and growth of the pool itself.</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="q">How does this connect to your other work?</td>
+    <td>This is <strong>Layer 1</strong> (redistribution of a fixed pool).
+    <strong>Layer 2</strong> (pie growth) is the DGR endorsement event study: 646 charities
+    gaining DGR FY2019–24 show median <strong>+30% real donations uplift</strong>,
+    cohort-timed (not COVID/calendar). Applied to reform: expansion ≈ +$215m/yr new giving
+    with no losers; PC pure change nets ≈ −$90m once loser downside is counted. Both layers
+    tell one story: expansion wins on both.</td>
+    <td><code>dgr_event_study_key_messages.ipynb</code>, <code>switcher_panel.csv</code></td>
+  </tr>
+  <tr>
+    <td class="q">Why ~13,000 gainers here but ~17,900 elsewhere?</td>
+    <td>17,903 is all mapped gainers; ~13,000 is those with <strong>current financials in the
+    latest AIS year</strong> (the only ones we can weight). Consistent, different denominators.</td>
+    <td>Mapping vs <code>dgr_gap_analysis</code> base</td>
+  </tr>
+  <tr>
+    <td class="q">Data quality caveats if pressed</td>
+    <td>AIS is self-reported/unaudited with ~18-month lag; ~580 withheld ABNs (mostly PAFs)
+    need name-match fallback; latest-AIS-year rows only; ancillary funds excluded from the
+    recipient base (grant-makers can't grant to themselves).</td>
+    <td>ACNC AIS 2021–24, ACNC register, ABR DGR listing, ATO stats</td>
+  </tr>
+</table>
+
+<h2>4. Three lines to have memorised</h2>
+<div class="card">
+  <ol>
+    <li>Pool = <strong>$1,527m</strong> (2023-24); base = ~49.9k charities, ~20k DGR
+    (40%, holding 78% of donations).</li>
+    <li>Expansion: <strong>13,017 gainers, $109–600m/yr access, $0 displaced</strong>.</li>
+    <li>PC pure change: similar gainer access ($121–654m) but <strong>displaces $152–206m
+    from 2,706 losers</strong>.</li>
+  </ol>
+</div>
+
+<p class="caveat">Sources: ATO Taxation Statistics (ancillary fund tables); ATO Ancillary Fund
+Return 2025 &amp; instructions, Section D (ato.gov.au, QC105267); ATO "Ancillary fund returns"
+(QC33554); Productivity Commission, <em>Future Foundations for Giving</em>, final report
+released 18 July 2024. Figures are access scenarios, not predicted flows.</p>
+
+</div>
+</body>
+</html>

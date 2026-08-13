@@ -1,0 +1,6 @@
+cohort,total,with_dgr,without_dgr_addressable,limitations
+human_rights,851,534,317,"Register flag includes multi-subtype charities (376 also PBI); JC's sole-subtype view gives a different, smaller population; register vintage - recent registrations/revocations lag"
+neighbourhood_house,312,78,234,"Name-keyword rules miss houses without 'house/centre' in legal name; ~750 council/umbrella-auspiced houses aren't ACNC-registered - invisible to us; counts charities, not physical houses (ANHCA: ~1,064)"
+disaster_preparedness,387,258,129,"Depends on AIS CLASSIE programs - 2021+ lodgers only, so a lower bound; includes relief/recovery by design (definitional choice); small/non-lodging charities undercounted"
+injury_prevention,237,159,78,"Same AIS dependency - lower bound; candidate classes (SAR, fire brigades, public safety) not counted; prevention slice of health subtype can't be verified externally"
+total,1787,1029,758,"Rows sum across cohorts (1,745 distinct charities; a few sit in more than one cohort); all counts = currently registered charities only; dollar modelling additionally needs AIS financials"
